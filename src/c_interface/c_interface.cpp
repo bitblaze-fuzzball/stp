@@ -630,6 +630,16 @@ void vc_deleteWholeCounterExample(WholeCounterExample cc) {
   delete c;
 }
 
+Expr * vc_getTrueCounterExampleFst(VC vc) {
+  Expr * es = (Expr *)(((stpstar)vc)->Ctr_Example->GetTrueCounterExampleFst());
+  return es;
+}
+
+Expr * vc_getTrueCounterExampleSnd(VC vc) {
+  Expr * es = (Expr *)(((stpstar)vc)->Ctr_Example->GetTrueCounterExampleSnd());
+  return es;
+}
+
 int vc_getBVLength(VC vc, Expr ex) {
   nodestar e = (nodestar)ex;
 

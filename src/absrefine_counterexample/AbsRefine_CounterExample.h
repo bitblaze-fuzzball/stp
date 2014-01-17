@@ -116,6 +116,11 @@ namespace BEEV
     {
       return CounterExampleMap;
     }
+
+    // Yet another counterexample format, this one as used by the
+    // Vine project's old OCaml interface.
+    ASTNode **GetTrueCounterExampleFst(void);
+    ASTNode **GetTrueCounterExampleSnd(void);
       
     //Computes the truth value of a formula w.r.t counter_example
     ASTNode ComputeFormulaUsingModel(const ASTNode& form);

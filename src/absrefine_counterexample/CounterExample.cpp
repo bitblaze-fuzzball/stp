@@ -775,6 +775,77 @@ namespace BEEV
     //os << "\nEND OF COUNTEREXAMPLE" << endl;
   } //End of PrintCounterExample
 
+  // The following two functions produce a counter example data
+  // structure that should exactly match the text output, in the form
+  // of two malloced, null-terminated arrays of ASTNode pointers. For
+  // compatiblity with Vine's old OCaml interface, but we should
+  // figure out whether STP standard interfaces can now be used
+  // instead. -SMcC
+  ASTNode **AbsRefine_CounterExample::GetTrueCounterExampleFst() {
+    // Take a copy of the counterexample map, 'cause TermToConstTermUsingModel
+    // changes it. Which breaks the iterator otherwise.
+    const ASTNodeMap c(CounterExampleMap);
+
+    ASTNode** trueCEFst = (ASTNode**)malloc(sizeof(ASTNode*) * c.size());
+
+    ASTNodeMap::const_iterator it = c.begin();
+    ASTNodeMap::const_iterator itend = c.end();
+    int i=0;
+    for (; it != itend; it++)
+      {
+        const ASTNode& f = it->first;
+        const ASTNode& se = it->second;
+
+        //skip over introduced variables
+        if (f.GetKind() == SYMBOL && (bm->FoundIntroducedSymbolSet(f)))
+          {
+            continue;
+          }
+        if (f.GetKind() == SYMBOL     ||
+            (f.GetKind() == READ      &&
+             f[0].GetKind() == SYMBOL &&
+             f[1].GetKind() == BVCONST))
+          {
+           trueCEFst[i++] = new ASTNode(f);
+          }
+      }
+    trueCEFst[i] = 0; // null terminate
+    return trueCEFst;
+  }
+
+  ASTNode **AbsRefine_CounterExample::GetTrueCounterExampleSnd() {
+    // Take a copy of the counterexample map, 'cause TermToConstTermUsingModel
+    // changes it. Which breaks the iterator otherwise.
+    const ASTNodeMap c(CounterExampleMap);
+
+    ASTNode** trueCESnd = (ASTNode**)malloc(sizeof(ASTNode*) * c.size());
+
+    ASTNodeMap::const_iterator it = c.begin();
+    ASTNodeMap::const_iterator itend = c.end();
+    int i=0;
+    for (; it != itend; it++)
+      {
+        const ASTNode& f = it->first;
+        const ASTNode& se = it->second;
+
+       assert(ARRAY_TYPE != se.GetType());
+
+        //skip over introduced variables
+        if (f.GetKind() == SYMBOL && (bm->FoundIntroducedSymbolSet(f)))
+          {
+            continue;
+          }
+        if (f.GetKind() == SYMBOL     ||
+            (f.GetKind() == READ      &&
+             f[0].GetKind() == SYMBOL &&
+             f[1].GetKind() == BVCONST))
+          {
+           trueCESnd[i++] = new ASTNode(se);
+          }
+      }
+    trueCESnd[i] = 0; // null terminate
+    return trueCESnd;
+  }
 
   /* iterate through the CounterExampleMap data structure and print it
    * to stdout. this function prints only the declared array variables

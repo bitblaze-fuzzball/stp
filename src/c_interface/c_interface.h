@@ -378,6 +378,11 @@ extern "C" {
   // Free the return value of vc_getWholeCounterExample
   void vc_deleteWholeCounterExample(WholeCounterExample cc);
 
+  // Counterexample as a Vine-style pair of ASTNode * arrays.
+  // Free these with free() when you're done with them.
+  Expr * vc_getTrueCounterExampleFst(VC vc);
+  Expr * vc_getTrueCounterExampleSnd(VC vc);
+
   //Kinds of Expr
   enum exprkind_t{
       UNDEFINED,
