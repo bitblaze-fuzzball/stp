@@ -372,8 +372,11 @@ void Logger::end(const finish_type finish)
         fprintf(proof,"}\n");
         history.push_back(uniqueid);
 
-        proof = (FILE*)fclose(proof);
-        assert(proof == NULL);
+        int res = fclose(proof);
+        if (!res) {
+            assert(!"Unexpected failure of fclose()");
+        }
+        proof = NULL;
     }
 
     if (statistics_on) {
