@@ -25,7 +25,20 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #endif //_MSC_VER
 
 #include "mtl/Vec.h"
+
+/* Tell the include files we need only the single-threaded version of
+   the pool class, so as to avoid pulling in the boost::thread library
+   and its dependence of a system error code translation function and
+   the boost_system runtime library. */
+/* The "#define BOOST_THREAD_MUTEX_HPP" is a hack because
+   BOOST_POOL_NO_MT isn't actually enough to avoid including the thread
+   headers in some versions. C.f.
+   https://svn.boost.org/trac/boost/ticket/7085
+*/
+#define BOOST_POOL_NO_MT
+#define BOOST_THREAD_MUTEX_HPP
 #include <boost/pool/pool.hpp>
+
 #include <map>
 #include <vector>
 using std::map;
