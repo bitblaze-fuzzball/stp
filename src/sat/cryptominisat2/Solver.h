@@ -681,7 +681,7 @@ inline void     Solver::setVariableName(Var var, char* name)
 } // Sets the varible 'var'-s name to 'name' in the logger
 #else
 inline void     Solver::setVariableName(Var var, char* name)
-{}
+{ (void)var; (void)name; }
 #endif
 
 #ifdef USE_GAUSS
@@ -818,6 +818,7 @@ static inline const char* showBool(bool b)
 // Just like 'assert()' but expression will be evaluated in the release version as well.
 static inline void check(bool expr)
 {
+    (void)expr;
     assert(expr);
 }
 

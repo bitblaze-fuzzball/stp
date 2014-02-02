@@ -429,6 +429,7 @@ bool XorSubsumer::simplifyBySubsumption(const bool doFullSubsume)
     clauseID = 0;
     uint32_t lastNumElimed = numElimed;
     localSubstituteUseful = 0;
+    (void)doFullSubsume; /* currently ignored */
     while (solver.performReplace && solver.varReplacer->needsReplace()) {
         if (!solver.varReplacer->performReplace())
             return false;

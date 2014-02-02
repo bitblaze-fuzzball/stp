@@ -176,6 +176,7 @@ inline bool Gaussian::should_init() const
 
 inline bool Gaussian::should_check_gauss(const uint decisionlevel, const uint starts) const
 {
+    (void)starts; /* currently ignored */
     return (!disabled
             && decisionlevel < config.decision_until);
 }

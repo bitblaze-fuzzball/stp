@@ -261,6 +261,7 @@ public:
     }
     void setGroup(const uint32_t _group)
     {
+        (void)_group; /* ignore */
         return;
     }
     #endif //STATS_NEEDED

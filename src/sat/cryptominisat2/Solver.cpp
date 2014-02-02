@@ -304,6 +304,8 @@ bool Solver::addXorClause(T& ps, bool xor_clause_inverted, const uint group, cha
         logger.set_group_name(group, group_name);
         learnt_clause_group = std::max(group+1, learnt_clause_group);
     }
+    #else
+    (void)group_name; /* Quiet unused variable warning */
     #endif
 
     if (!ok)
@@ -412,6 +414,8 @@ bool Solver::addClause(T& ps, const uint group, char* group_name)
         logger.set_group_name(group, group_name);
         learnt_clause_group = std::max(group+1, learnt_clause_group);
     }
+    #else
+    (void)group_name; /* Quiet unused variable warning */
     #endif
 
     if (!ok)
@@ -2349,6 +2353,7 @@ lbool Solver::solve(const vec<Lit>& assumps)
 
 bool Solver::verifyXorClauses(const vec<XorClause*>& cs) const
 {
+    (void)cs; /* Currently unused */
     #ifdef VERBOSE_DEBUG
     cout << "Checking xor-clauses whether they have been properly satisfied." << endl;;
     #endif

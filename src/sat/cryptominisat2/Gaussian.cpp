@@ -407,6 +407,7 @@ Gaussian::gaussian_ret Gaussian::gaussian(Clause*& confl)
 
 uint Gaussian::eliminate(matrixset& m, uint& conflict_row)
 {
+    (void)conflict_row; /* All uses below are commented out */
     #ifdef VERBOSE_DEBUG
     cout << "(" << matrix_no << ")";
     cout << "Starting elimination" << endl;
@@ -561,9 +562,10 @@ uint Gaussian::eliminate(matrixset& m, uint& conflict_row)
     return i;
 }
 
-Gaussian::gaussian_ret Gaussian::handle_matrix_confl(Clause*& confl, const matrixset& m, const uint size, const uint maxlevel, const uint best_row)
+Gaussian::gaussian_ret Gaussian::handle_matrix_confl(Clause*& confl, const matrixset& m, const uint size_arg, const uint maxlevel, const uint best_row)
 {
     assert(best_row != UINT_MAX);
+    (void)size_arg; /* Currently unused */
 
     m.matrix.getVarsetAt(best_row).fill(tmp_clause, solver.assigns, col_to_var_original);
     confl = (Clause*)solver.clauseAllocator.XorClause_new(tmp_clause, false, solver.learnt_clause_group++);
@@ -1011,6 +1013,7 @@ bool Gaussian::check_last_one_in_cols(matrixset& m) const
 
 void Gaussian::check_matrix_against_varset(PackedMatrix& matrix, const matrixset& m) const
 {
+    (void)m; /* Used only in assertions */
     for (uint i = 0; i < matrix.getSize(); i++) {
         const PackedRow mat_row = matrix.getMatrixAt(i);
         const PackedRow var_row = matrix.getVarsetAt(i);
