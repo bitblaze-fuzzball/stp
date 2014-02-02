@@ -54,7 +54,7 @@ static inline int memReadStat(int field)
     if (in == NULL) return 0;
     int     value;
     for (; field >= 0; field--)
-        fscanf(in, "%d", &value);
+        if (fscanf(in, "%d", &value) != 1) value = 0;
     fclose(in);
     return value;
 }
