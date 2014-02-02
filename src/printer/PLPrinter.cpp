@@ -266,10 +266,7 @@ string functionToCVCName(const Kind k) {
         os << ")" << endl;
         break;
 
-      case BVCONCAT:  // two arity, infix function name.
-      case BVOR:
-      case BVAND:
-      case EQ:
+      case EQ:  // two arity, infix function name.
       case IFF:
       case IMPLIES:
     	  assert(2 == c.size());
@@ -279,6 +276,9 @@ string functionToCVCName(const Kind k) {
       case NAND:
       case NOR:
       case XOR:
+      case BVCONCAT:
+      case BVOR:
+      case BVAND:
         {
           os << "(";
           PL_Print1(os, c[0], indentation, letize);
