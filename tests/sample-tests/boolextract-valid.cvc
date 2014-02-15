@@ -1,5 +1,5 @@
 %% Regression level = 3
-%% Result = InValid
+%% Result = Valid
 %% Language = presentation
 
 X : BITVECTOR(2);
