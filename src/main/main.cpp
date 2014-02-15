@@ -369,6 +369,11 @@ int parse_options(int argc, char** argv)
         }
     }
 
+    if (vm.count("version")) {
+        cout << "STP version " << get_git_version() << std::endl;
+        exit(0);
+    }
+
     return 0;
 }
 
