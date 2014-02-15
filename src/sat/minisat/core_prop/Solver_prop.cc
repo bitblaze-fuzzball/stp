@@ -177,10 +177,10 @@ Solver_prop::addArray(int array_id, const vec<Lit>& i, const vec<Lit>& v, const 
         {
             printf("The array propagators unfortunately don't do arbitrary precision integers yet. "
                     "With the INDICES_128BITS compile time flag STP does 128-bits on 64-bit machines compiled with GCC. "
-                    "Currently STP is compiled to use %d bit indices. "
-                    "Unfortunately your problem has array indexes of size %d bits. "
+                    "Currently STP is compiled to use %lu bit indices. "
+                    "Unfortunately your problem has array indexes of size %lu bits. "
                     "STP does arbitrary precision indices with the '--oldstyle-refinement' or the '-r' flags.\n",
-                    INDEX_BIT_WIDTH, std::max(i.size(), ki.size()));
+		    INDEX_BIT_WIDTH, (unsigned long)std::max(i.size(), ki.size()));
             exit(1);
         }
 
