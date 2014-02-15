@@ -522,7 +522,11 @@ extern Kit_DsdNtk_t *  Kit_DsdExpand( Kit_DsdNtk_t * p );
 extern Kit_DsdNtk_t *  Kit_DsdShrink( Kit_DsdNtk_t * p, int pPrios[] );
 extern void            Kit_DsdRotate( Kit_DsdNtk_t * p, int pFreqs[] );
 extern int             Kit_DsdCofactoring( unsigned * pTruth, int nVars, int * pCofVars, int nLimit, int fVerbose );
+#endif
+#if 1
 /*=== kitFactor.c ==========================================================*/
+/* N.B. STP's copy of parts of ABC appears to include calls to this function
+   but no definition, which is something we may want to fix in the future. */
 extern Kit_Graph_t *   Kit_SopFactor( Vec_Int_t * vCover, int fCompl, int nVars, Vec_Int_t * vMemory );
 /*=== kitGraph.c ==========================================================*/
 extern Kit_Graph_t *   Kit_GraphCreate( int nLeaves );   
@@ -538,10 +542,14 @@ extern Kit_Edge_t      Kit_GraphAddNodeMux( Kit_Graph_t * pGraph, Kit_Edge_t eEd
 extern unsigned        Kit_GraphToTruth( Kit_Graph_t * pGraph );
 extern Kit_Graph_t *   Kit_TruthToGraph( unsigned * pTruth, int nVars, Vec_Int_t * vMemory );
 extern int             Kit_GraphLeafDepth_rec( Kit_Graph_t * pGraph, Kit_Node_t * pNode, Kit_Node_t * pLeaf );
+#endif
+#if 0
 /*=== kitHop.c ==========================================================*/
 //extern Hop_Obj_t *     Kit_GraphToHop( Hop_Man_t * pMan, Kit_Graph_t * pGraph );
 //extern Hop_Obj_t *     Kit_TruthToHop( Hop_Man_t * pMan, unsigned * pTruth, int nVars, Vec_Int_t * vMemory );
 //extern Hop_Obj_t *     Kit_CoverToHop( Hop_Man_t * pMan, Vec_Int_t * vCover, int nVars, Vec_Int_t * vMemory );
+#endif
+#if 1
 /*=== kitIsop.c ==========================================================*/
 extern int             Kit_TruthIsop( unsigned * puTruth, int nVars, Vec_Int_t * vMemory, int fTryBoth );
 /*=== kitSop.c ==========================================================*/
