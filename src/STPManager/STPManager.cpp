@@ -9,6 +9,7 @@
 
 // to get the PRIu64 macro from inttypes, this needs to be defined.
 #include <inttypes.h>
+#include <climits>
 #include <cmath>
 #include "../STPManager/STPManager.h"
 #include "../printer/SMTLIBPrinter.h"
@@ -213,7 +214,11 @@ namespace BEEV
     while (copied + shift_amount < width)
       {
         CONSTANTBV::BitVector_Chunk_Store(CreateBVConstVal, shift_amount, copied, c_val);
-        bvconst = bvconst >> shift_amount;
+#if ULONG_MAX < ULLONG_MAX
+	bvconst = bvconst >> shift_amount;
+#else
+	bvconst = 0;
+#endif
         c_val = (~((unsigned long) 0)) & bvconst;
         copied += shift_amount;
       }
