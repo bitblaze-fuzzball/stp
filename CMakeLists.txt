@@ -242,12 +242,58 @@ add_custom_target(uninstall
 
 enable_testing()
 
-add_test(NAME regresscvc
-  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/scripts/
-  COMMAND run_tests.pl --td=${CMAKE_CURRENT_SOURCE_DIR}/big-test/
+# There are plans for more sophisticated test suites and harnesses,
+# but for now you can run some of our old regression tests with "make
+# test". The results reporting isn't yet hooked up with CMake, so it
+# will look like the tests always succeed. To see the actual results,
+# look in build/Testing/Temporary/LastTest.log. For a short results
+# summary, grep for "Problematic" in that output; if everything went
+# correctly, you should see "Problematic cases: 0" once for each of
+# the stanzas below.
+
+# Despite the name, only takes about 10 seconds
+add_test(NAME big-test
+  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+  COMMAND scripts/run_tests.pl --td=tests/big-test
 )
-#regresscvc: REGRESS_LOG=`date +%Y-%m-%d`"-regress-cvc.log"
-#regresscvc: baseTest
+
+# These take a minute or two
+add_test(NAME bio-tests
+  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+  COMMAND scripts/run_tests.pl --td=tests/bio-tests
+)
+
+# The "c-api-tests" don't currently have an automated harness.  Some
+# of the individual files have comments about how to compile and run
+# them.
+
+# The tests in the "crypto-tests" directory aren't yet set up
+# for the run_tests.pl, as you can see from their file extensions.
+
+# About 30 seconds total
+add_test(NAME generated_tests
+  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+  COMMAND scripts/run_tests.pl --td=tests/generated_tests
+)
+
+# These are small, but "no-query.cvc" is deliberately a syntax error
+# (it's just not supposed to crash).
+#add_test(NAME misc-tests
+#  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+#  COMMAND scripts/run_tests.pl --td=tests/misc-tests
+#)
+
+# These are all very fast
+add_test(NAME sample-tests
+  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+  COMMAND scripts/run_tests.pl --td=tests/sample-tests
+)
+
+# Also pretty fast
+add_test(NAME sample-smt-tests
+  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+  COMMAND scripts/run_tests.pl --td=tests/sample-smt-tests
+)
 
 # -----------------------------------------------------------------------------
 # Export our targets so that other CMake based projects can interface with

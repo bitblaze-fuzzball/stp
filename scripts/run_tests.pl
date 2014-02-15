@@ -32,6 +32,11 @@
 use strict;
 use Getopt::Long;
 
+# It looks like ancestral versions of this script allowed setting the
+# following options on the command line, but that functionality is
+# missing in the current version. For the moment, you can modify the
+# values in %optionsDefault below, just be careful not to check
+# changes in accidentally.
 my %optionsHelp =
     ("-h" => "Print this help and exit",
      "-v" => "Be verbose (default, opposite of -q)",
@@ -51,7 +56,7 @@ my %optionsHelp =
 my $usageString =
     "run_tests --td=dir [options] 
 
-Run STP Lite regression tests.  Concrete test files or directories
+Run STP regression tests.  Concrete test files or directories
 with test files should be specified by name with a full path or
 relative path to the current directory.  If none specified, all
 subdirectories are searched for test files.
@@ -74,7 +79,7 @@ my %optionsDefault = ("level" => 4,
 		      "proofs" => 0,
 		      "lang" => "all",
 		      "stppath" => "stp/bin",
-		      "vc" => $pwd . "/bin/stp -t -d", # Program names
+		      "vc" => $pwd . "/build/stp -t -d", # Program names
 		      #"vc" => "valgrind --leak-check=full /home/vganesh/stp/bin/stp", # Program names
 		      "pfc" => "true",
 		      "stptestpath" => "stp/test",
