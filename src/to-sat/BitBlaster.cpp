@@ -1664,7 +1664,7 @@ namespace BEEV
     MultiplicationStats*
     BitBlaster<BBNode, BBNodeManagerT>::getMS(const ASTNode&n, int& highestZero)
     {
-      MultiplicationStats * ms;
+      MultiplicationStats * ms = 0;
       highestZero = -1;
 
       if (statsFound(n))

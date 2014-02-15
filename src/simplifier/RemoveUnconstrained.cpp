@@ -217,7 +217,7 @@ namespace BEEV
         unsigned indexWidth = muteNode.getParent().n.GetIndexWidth();
 
         ASTNode other;
-        MutableASTNode* muteOther;
+        MutableASTNode* muteOther = 0; /* Used only for binary operators */
 
           if(numberOfChildren == 2)
           {
