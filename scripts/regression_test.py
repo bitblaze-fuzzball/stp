@@ -112,13 +112,15 @@ class Tester:
         #output options
         #--output-CNF --output-bench --exit-after-CNF
         opts = ["--disable-simplify", "-w", "-a", "--disable-cbitp"
-                , "--disable-equality", "--cryptominisat"
-                , "--simplifying-minisat", "--minisat"
+                , "--disable-equality"
                 , "--oldstyle-refinement", "-r"]
 
         for opt in opts:
             if random.randint(0,1) == 0 :
                 cmd += opt + " "
+
+        choose_solver = ["", "--cryptominisat" , "--simplifying-minisat", "--minisat"]
+        cmd += random.choice(choose_solver) + " ";
 
         #if random.randint(0,1) == 1 :
         #    cmd += "-i %d " % random.randint(0,1000)
@@ -149,9 +151,9 @@ class Tester:
 
         #if need time limit, then limit
         if (needToLimitTime) :
-            p = subprocess.Popen(command.rsplit(), stderr=subprocess.STDOUT, stdout=subprocess.PIPE, preexec_fn=setlimits)
+            p = subprocess.Popen(command.rsplit(), stdout=subprocess.PIPE, preexec_fn=setlimits)
         else:
-            p = subprocess.Popen(command.rsplit(), stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
+            p = subprocess.Popen(command.rsplit(), stdout=subprocess.PIPE)
 
 
         #print time limit after child startup

@@ -377,6 +377,7 @@ void Logger::end(const finish_type finish)
             assert(!"Unexpected failure of fclose()");
         }
         proof = NULL;
+        assert(proof == NULL);
     }
 
     if (statistics_on) {

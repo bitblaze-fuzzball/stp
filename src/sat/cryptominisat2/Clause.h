@@ -259,9 +259,8 @@ public:
     {
         return 0;
     }
-    void setGroup(const uint32_t _group)
+    void setGroup(const uint32_t)
     {
-        (void)_group; /* ignore */
         return;
     }
     #endif //STATS_NEEDED
