@@ -378,8 +378,7 @@ namespace BEEV
      }
 
      inline ASTNode CreateTerm(Kind kind, unsigned int width,
-     		const ASTNode& child0, const ASTNode& child1, const ASTNode& child2,
-     		const ASTVec &children =  _empty_ASTVec) {
+		const ASTNode& child0, const ASTNode& child1, const ASTNode& child2) {
      	return defaultNodeFactory->CreateTerm(kind, width, child0, child1, child2);
      }
 

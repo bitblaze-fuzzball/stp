@@ -108,6 +108,7 @@ namespace BEEV
     // is for printing hex. numbers that C compilers will accept
     virtual void nodeprint(ostream& os, bool c_friendly = false)
     {
+      (void)c_friendly;
       os << "*";
     }
     ;

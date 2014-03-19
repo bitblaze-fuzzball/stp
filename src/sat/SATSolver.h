@@ -31,6 +31,7 @@ namespace BEEV
     virtual
     bool addArray(int array_id, const SATSolver::vec_literals& i, const SATSolver::vec_literals& v, const Minisat::vec<Minisat::lbool>&, const Minisat::vec<Minisat::lbool>& )
     {
+      (void)array_id; (void)i; (void)v;
      std::cerr << "Not implemented";
      exit(1);
     }
@@ -57,6 +58,7 @@ namespace BEEV
 
     virtual void setSeed(int i)
     {
+      (void)i;
       std::cerr << "Setting the random seen is not implemented for this solver" << std::endl;
       exit(1);
     }
@@ -69,7 +71,7 @@ namespace BEEV
 
     // The simplifying solvers shouldn't eliminate index / value variables.
     virtual void setFrozen(Var x)
-    {}
+    { (void)x; }
 
     virtual int nClauses()
     {

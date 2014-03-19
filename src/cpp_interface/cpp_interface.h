@@ -63,8 +63,8 @@ namespace BEEV
 
     void checkInvariant()
     {
-      assert(bm.getAssertLevel() == cache.size());
-      assert(bm.getAssertLevel() == symbols.size());
+      assert(bm.getAssertLevel() == (int)cache.size());
+      assert(bm.getAssertLevel() == (int)symbols.size());
     }
 
     void init()

@@ -75,6 +75,7 @@ namespace BEEV
     ASTBVConst(CBV bv, unsigned int width, enum CBV_LIFETIME l )
     :  ASTInternal(BVCONST)
     {
+      (void)l; /* currently a unit type */
       _bvconst = (bv);
       _value_width = width;
       cbv_managed_outside =true;

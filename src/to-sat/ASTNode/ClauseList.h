@@ -82,6 +82,7 @@ class ClauseList
 	}
 
 	void reserve(int v) {
+	        (void)v;
 		//cont.reserve(v);
 	}
 
