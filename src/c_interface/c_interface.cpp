@@ -48,6 +48,7 @@ extern int smtparse(void*);
 
 //TODO remove this, it's really ugly
 void vc_setFlags(VC vc, char c, int param_value) {
+  (void)param_value;
   bmstar b = (bmstar)(((stpstar)vc)->bm);
   process_argument(c, b);
 }
@@ -126,6 +127,7 @@ VC vc_createValidityChecker(void) {
 
 // Expr I/O
 void vc_printExpr(VC vc, Expr e) {
+  (void)vc;
   //do not print in lisp mode
   //bmstar b = (bmstar)vc;
   BEEV::ASTNode q = (*(nodestar)e);
@@ -137,6 +139,7 @@ void vc_printExpr(VC vc, Expr e) {
 
 char * vc_printSMTLIB(VC vc, Expr e)
 {
+  (void)vc;
   stringstream ss;
   printer::SMTLIB1_PrintBack(ss,*((nodestar)e));
   string s = ss.str();
@@ -178,12 +181,14 @@ void vc_printExprCCode(VC vc, Expr e) {
 
 
 void vc_printExprFile(VC vc, Expr e, int fd) {
+  (void)vc;
   fdostream os(fd);
   ((nodestar)e)->PL_Print(os);
   //os.flush();
 }
 
 static void vc_printVarDeclsToStream(VC vc, ostream &os) {
+  (void)vc;
   for(BEEV::ASTVec::iterator i = decls->begin(),
         iend=decls->end();i!=iend;i++) {
     node a = *i;
@@ -221,6 +226,7 @@ void vc_printVarDecls(VC vc) {
 }
 
 void vc_clearDecls(VC vc) {
+  (void)vc;
   decls->clear();
 }
 
@@ -316,6 +322,7 @@ void vc_printCounterExampleToBuffer(VC vc, char **buf, unsigned long *len) {
 }
 
 void vc_printExprToBuffer(VC vc, Expr e, char **buf, unsigned long * len) {
+  (void)vc;
   stringstream os;
   //bmstar b = (bmstar)(((stpstar)vc)->bm);
   BEEV::ASTNode q = *((nodestar)e);
@@ -433,6 +440,7 @@ void vc_assertFormula(VC vc, Expr e) {
 
 void soft_time_out(int ignored)
 {
+  (void)ignored;
   BEEV::ParserBM->soft_timeout_expired = true;
 }
 
@@ -566,7 +574,6 @@ void vc_printCounterExample(VC vc) {
 
 Expr vc_getCounterExample(VC vc, Expr e) {
   nodestar a = (nodestar)e;
-  bmstar b = (bmstar)(((stpstar)vc)->bm);
   ctrexamplestar ce = (ctrexamplestar)(((stpstar)vc)->Ctr_Example);  
 
   bool t = false;
@@ -579,7 +586,6 @@ Expr vc_getCounterExample(VC vc, Expr e) {
 
 void vc_getCounterExampleArray(VC vc, Expr e, Expr **indices, Expr **values, int *size) {
   nodestar a = (nodestar)e;
-  bmstar b = (bmstar)(((stpstar)vc)->bm);
   ctrexamplestar ce = (ctrexamplestar)(((stpstar)vc)->Ctr_Example);  
 
   bool t = false;
@@ -599,7 +605,6 @@ void vc_getCounterExampleArray(VC vc, Expr e, Expr **indices, Expr **values, int
 }
 
 int vc_counterexample_size(VC vc) {
-  bmstar b = (bmstar)(((stpstar)vc)->bm);
   ctrexamplestar ce = (ctrexamplestar)(((stpstar)vc)->Ctr_Example);  
 
   return ce->CounterExampleSize();
@@ -616,7 +621,7 @@ WholeCounterExample vc_getWholeCounterExample(VC vc) {
 }
 
 Expr vc_getTermFromCounterExample(VC vc, Expr e, WholeCounterExample cc) {
-  //bmstar b = (bmstar)(((stpstar)vc)->bm);
+  (void)vc;
   nodestar n = (nodestar)e;
   CompleteCEStar c = (CompleteCEStar)cc;
 
@@ -641,6 +646,7 @@ Expr * vc_getTrueCounterExampleSnd(VC vc) {
 }
 
 int vc_getBVLength(VC vc, Expr ex) {
+  (void)vc;
   nodestar e = (nodestar)ex;
 
   if(BEEV::BITVECTOR_TYPE != e->GetType()) 
@@ -999,7 +1005,7 @@ Expr vc_bvConstExprFromInt(VC vc,
   bmstar b = (bmstar)(((stpstar)vc)->bm);
 
   unsigned long long int v = (unsigned long long int)value;
-  unsigned long long int max_n_bits = 0xFFFFFFFFFFFFFFFFULL >> 64-n_bits;
+  unsigned long long int max_n_bits = 0xFFFFFFFFFFFFFFFFULL >> (64-n_bits);
   //printf("%ull", max_n_bits);
   if(v > max_n_bits) {
     printf("CInterface: vc_bvConstExprFromInt: "\
@@ -1488,7 +1494,6 @@ unsigned long long int getBVUnsignedLongLong(Expr e) {
 
 
 Expr vc_simplify(VC vc, Expr e) {
-  bmstar b = (bmstar)(((stpstar)vc)->bm);
   nodestar a = (nodestar)e;
   simpstar simp = (simpstar)(((stpstar)vc)->simp);
 
@@ -1563,14 +1568,12 @@ Expr vc_bvWriteToMemoryArray(VC vc,
     return vc_writeExpr(vc, array, byteIndex, element);
   else {
     int count = 1;
-    int hi = newBitsPerElem - 1;
     int low = newBitsPerElem - 8;
     int low_elem = 0;
     int hi_elem = low_elem + 7;
     Expr c = vc_bvExtract(vc, element, hi_elem, low_elem);
     Expr newarray = vc_writeExpr(vc, array, byteIndex, c);
     while(--numOfBytes > 0) {
-      hi = low-1;
       low = low-8;
             
       low_elem = low_elem + 8;
@@ -1747,7 +1750,6 @@ int vc_isBool(Expr e) {
 }
 
 void vc_Destroy(VC vc) {
-  bmstar b = (bmstar)(((stpstar)vc)->bm);
   // for(std::vector<BEEV::ASTNode *>::iterator it=created_exprs.begin(),
   //    itend=created_exprs.end();it!=itend;it++) {
   //     BEEV::ASTNode * aaa = *it;
