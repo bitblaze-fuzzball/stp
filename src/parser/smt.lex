@@ -36,7 +36,7 @@
 #include <iostream>
 #include "parser.h"
 #include "parsesmt.hpp"
-#include "../cpp_interface/cpp_interface.h"
+#include "../interface/CPP/cpp_interface.h"
 
   using namespace std;
   using namespace BEEV;
@@ -229,9 +229,9 @@ bit{DIGIT}+     {
     	nptr= BEEV::parserInterface->LookupOrCreateSymbol(str);
     	found = true;
     }
-    else if (BEEV::parserInterface->letMgr.isLetDeclared(str)) // a let.
+    else if (BEEV::parserInterface->letMgr->isLetDeclared(str)) // a let.
     {
-    	nptr= BEEV::parserInterface->letMgr.resolveLet(str);
+    	nptr= BEEV::parserInterface->letMgr->resolveLet(str);
     	found = true;
     }
 

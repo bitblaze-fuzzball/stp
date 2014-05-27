@@ -5,7 +5,7 @@ configure_file(lit.site.cfg.in lit.site.cfg @ONLY)
 
 add_custom_target(query-file-tests
                   DEPENDS stp
-                  COMMAND ${LIT_TOOL} -v -s .
+                  COMMAND ${LIT_TOOL} ${LIT_ARGS} .
                  )
 
 # Make sure this test-suite runs when "check" is target

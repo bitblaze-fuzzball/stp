@@ -28,8 +28,16 @@ To build STP run
     cmake -G 'Unix Makefiles' /path/to/stp/source/root
     make
 
-If you'd prefer a more in-depth explaination of how to configure, build
+If you'd prefer a more in-depth explanation of how to configure, build
 and install STP read on...
+
+Dependencies
+------------
+STP relies on a few dependencies, namely boost and flex/bison. Installing
+the required header files and binaries can be achieved through the following.
+(Tested on Ubuntu 13.04.)
+
+    sudo apt-get install bison flex libboost-all-dev
 
 Build directory
 ---------------
@@ -79,12 +87,17 @@ To run tests (optinal) you will need to setup the OutputCheck submodule if you
 have not done so.
 
     cd /path/to/stp/source/root
-    git submodule init -- scripts/OutputCheck
+    git submodule init
     git submodule update
+    cd build
+    cmake -G 'Unix Makefiles' ENABLE_TESTING=ON ..
+    make
 
 You can then run the tests by running
 
     make check
+
+You can find out more about testing in STP at https://github.com/stp/stp/wiki/Testing .
 
 Installation (optional) can be done by running
 

@@ -12,7 +12,7 @@
 #include <assert.h>
 #include "fdstream.h"
 #include "../printer/printers.h"
-#include "../cpp_interface/cpp_interface.h"
+#include "../CPP/cpp_interface.h"
 #include "../extlib-abc/cnf_short.h"
 
 using std::cout;
@@ -1621,7 +1621,8 @@ Expr vc_parseExpr(VC vc, const char* infile) {
   cvcin = fopen(infile,"r");
   if(cvcin == NULL) {
     fprintf(stderr,"%s: Error: cannot open %s\n",prog,infile);
-    BEEV::FatalError("");
+    BEEV::FatalError("Cannot open file");
+    return 0;
   }
 
   //BEEV::GlobalSTP = (stpstar)vc;

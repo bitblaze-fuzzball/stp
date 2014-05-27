@@ -44,7 +44,7 @@
   // -*- c++ -*-L
 #include "parser.h"
 #include "parsesmt2.hpp"
-#include "../cpp_interface/cpp_interface.h"
+#include "../interface/CPP/cpp_interface.h"
 
   extern char *smt2text;
   extern int smt2error (const char *msg);
@@ -76,9 +76,9 @@
     	nptr= BEEV::parserInterface->LookupOrCreateSymbol(str);
     	found = true;
     }
-    else if (BEEV::parserInterface->letMgr.isLetDeclared(str)) // a let.
+    else if (BEEV::parserInterface->letMgr->isLetDeclared(str)) // a let.
     {
-    	nptr = BEEV::parserInterface->letMgr.resolveLet(str);
+    	nptr = BEEV::parserInterface->letMgr->resolveLet(str);
     	found = true;
     }
     else if (BEEV::parserInterface->isFunction(str))
