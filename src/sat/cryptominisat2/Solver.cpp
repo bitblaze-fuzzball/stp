@@ -25,6 +25,7 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
 #include <algorithm>
 #include <limits.h>
 #include <vector>
+#include <sstream>
 #include <iomanip>
 
 #include "Clause.h"
@@ -62,6 +63,12 @@ namespace MINISAT
 using namespace MINISAT;
 using std::cout;
 using std::endl;
+using std::cout;
+using std::left;
+using std::right;
+using std::fixed;
+using std::setw;
+using std::setprecision;
 
 //=================================================================================================
 // Constructor/Destructor:
@@ -2580,34 +2587,48 @@ bool Solver::noLearntBinaries() const
 void Solver::printStats()
 {
     double cpu_time = cpuTime();
-    double mem_used = memUsed();
+    double mem_used = memUsedPeak();
+    std::ostringstream saved_fmt;
+    saved_fmt.copyfmt(cout);
     cout << "restarts              : " << starts << "\n";
+
     cout << "conflicts             : "
-    << conflicts
-    << "   (" << conflicts   /cpu_time << " /sec)\n";
+	 << left << setw(12) << conflicts
+	 << "   ("
+	 << right << fixed << setprecision(0) << conflicts/cpu_time 
+	 << " /sec)\n";
 
-    cout
-    << "decisions             : "
-    << decisions
-    << "   (%4.2f %% random)" << (double)rnd_decisions*100 / (double)decisions
-    << " (" << (double)decisions/cpu_time << " /sec)\n";
+    cout << "decisions             : "
+	 << left << setw(12) << decisions
+	 << "   ("
+	 << right << fixed << setprecision(2) << setw(4)
+	 << (double)rnd_decisions*100 / (double)decisions
+	 << " % random)"
+	 << " ("
+	 << right << fixed << setprecision(0) << (double)decisions/cpu_time
+	 << " /sec)\n";
 
-    cout
-    << "propagations          : "
-    << propagations
-    << "   (" << (double)propagations/cpu_time<< " /sec)\n";
+    cout << "propagations          : "
+	 << left << setw(12) << propagations
+	 << "   ("
+	 << right << fixed << setprecision(0) << (double)propagations/cpu_time
+	 << " /sec)\n";
 
-    cout
-    << "conflict literals     : "
-    << tot_literals
-    << "   ("
-    << (double)(max_literals - tot_literals)*100.0/(double)max_literals
-    << " % deleted)\n";
+    cout << "conflict literals     : "
+	 << left << setw(12) << tot_literals
+	 << "   ("
+	 << right << fixed << setprecision(2) << setw(4)
+	 << (double)(max_literals - tot_literals)*100.0/(double)max_literals
+	 << " % deleted)\n";
 
     if (mem_used != 0) {
-        cout << "Memory used           : " << mem_used << " MB\n";
+        cout << "Memory used           : "
+	     << right << fixed << setprecision(2) << mem_used << " MB\n";
     }
-    cout << "CPU time              : " << cpu_time <<  " s\n";
+    cout << "CPU time              : "
+	 << resetiosflags(std::ios_base::fixed|std::ios_base::scientific)
+	 << cpu_time <<  " s\n";
+    cout.copyfmt(saved_fmt);
 }
 
 }; //NAMESPACE MINISAT
