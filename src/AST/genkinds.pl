@@ -66,8 +66,10 @@ sub gen_h_file {
 	"#include <iostream>\n",
 	"namespace BEEV {\n  typedef enum {\n";
 
-    for (@kindnames) {
-	print HFILE "    $_,\n";
+    for my $i (0 .. $#kindnames) {
+	print HFILE "    ", $kindnames[$i];
+	print HFILE "," unless $i == $#kindnames;
+	print HFILE "\n";
     }
 
     print HFILE
@@ -88,7 +90,7 @@ sub gen_h_file {
 	"/** Prints symbolic name of kind */\n",
 	"inline std::ostream& operator<<(std::ostream &os, const Kind &kind) { os << _kind_names[kind]; return os; }\n",
 	"\n\n",
-	"};  // end namespace\n",
+	"}  // end namespace\n",
 	"\n\n#endif\n";
 
     close(HFILE);
@@ -117,7 +119,7 @@ sub gen_cpp_file {
     }
     print CPPFILE
 	"};\n",
-	"\n};  // end namespace\n";
+	"\n}  // end namespace\n";
 
     close(CPPFILE);
 }
