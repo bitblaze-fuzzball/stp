@@ -81,11 +81,16 @@
     	nptr = BEEV::parserInterface->letMgr->resolveLet(str);
     	found = true;
     }
-    else if (BEEV::parserInterface->isFunction(str))
+    else if (BEEV::parserInterface->isBitVectorFunction(str))
     {
 		smt2lval.str = new std::string(str);
-		return  FUNCTIONID_TOK;
+		return  BITVECTOR_FUNCTIONID_TOK;
     }
+   else if (BEEV::parserInterface->isBooleanFunction(str))
+   {
+               smt2lval.str = new std::string(str);
+               return  BOOLEAN_FUNCTIONID_TOK;
+   }
     
     
 
@@ -109,6 +114,7 @@
 	}
 %}
 
+%option never-interactive
 %option noyywrap
 %option nounput
 %option noreject

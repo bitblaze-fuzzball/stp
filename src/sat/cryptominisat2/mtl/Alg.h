@@ -21,7 +21,7 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
 #define Alg_h
 
 #ifdef _MSC_VER
-#include <msvc/stdint.h>
+#include "msvc/stdint.h"
 #else
 #include <stdint.h>
 #endif //_MSC_VER
@@ -70,6 +70,6 @@ static inline bool findW(V& ts, const T& t)
     return j < ts.size();
 }
 
-}; //NAMESPACE MINISAT
+} //NAMESPACE MINISAT
 
 #endif

@@ -33,7 +33,6 @@ Result bvSubtractBothWays(vector<FixedBits*>& children, FixedBits& output)
 	Addargs.push_back(&notB);
 	Addargs.push_back(&one);
 
-	bool changed = false;
 	while (true) // until it fixed points
 	{
 		Result result;
@@ -51,8 +50,6 @@ Result bvSubtractBothWays(vector<FixedBits*>& children, FixedBits& output)
 
 		if (FixedBits::equals(initialNotB, notB) && FixedBits::equals(initialA, a) && FixedBits::equals(initialOut, output))
 			break;
-		else
-			changed = true;
 	}
 
 	return NOT_IMPLEMENTED;
@@ -105,7 +102,7 @@ Result fixIfCanForAddition(vector<FixedBits*>& children, const int index, const 
 	assert(inflowMin <= inflowMax);
 	assert(inflowMin >=0);
 	assert(index >=0);
-	assert(index < children[0]->getWidth());
+	assert(index < (int)children[0]->getWidth());
 
 	const int maxCarryIn = maximumCarryInForAddition(children.size(), index);
 
@@ -311,29 +308,27 @@ void setValue(FixedBits& a, const int i, bool v)
 
 Result bvAddBothWays(vector<FixedBits*>& children, FixedBits& output)
 {
-        const int numberOfChildren = children.size();
+        const size_t numberOfChildren = children.size();
         if (numberOfChildren==2)
         {
           return bvAddBothWays(*children[0],*children[1],output);
         }
 
-        Result result = NO_CHANGE;
-
-	const int bitWidth = output.getWidth();
+	const unsigned bitWidth = output.getWidth();
 
 
-	for (int i = 0; i < numberOfChildren; i++)
+	for (size_t i = 0; i < numberOfChildren; i++)
 	{
 		assert(children[i]->getWidth() == bitWidth );
 	}
 
-	int columnL[bitWidth]; // minimum  ""            ""
-	int columnH[bitWidth]; // maximum number of true partial products.
+	int *columnL = (int*) alloca(sizeof(int) * bitWidth); // minimum  ""            ""
+	int *columnH = (int*) alloca(sizeof(int) * bitWidth); // maximum number of true partial products.
 
 	initialiseColumnCounts(columnL, columnH, bitWidth, numberOfChildren, children);
 
-	int sumH[bitWidth];
-	int sumL[bitWidth];
+	int *sumH = (int*) alloca(sizeof(int) * bitWidth);
+	int *sumL = (int*) alloca(sizeof(int) * bitWidth);
 	sumL[0] = columnL[0];
 	sumH[0] = columnH[0];
 
@@ -352,7 +347,7 @@ Result bvAddBothWays(vector<FixedBits*>& children, FixedBits& output)
 		changed = false;
 
 		// Make sure each column's sum is consistent with the output.
-		for (int i = 0; i < bitWidth; i++)
+		for (unsigned i = 0; i < bitWidth; i++)
 		{
 			if (output.isFixed(i))
 			{
@@ -376,7 +371,7 @@ Result bvAddBothWays(vector<FixedBits*>& children, FixedBits& output)
 		}
 
 		// update the column counts to make them consistent to the totals.
-		for (int i = /**/0 /**/; i < bitWidth; i++)
+		for (unsigned i = /**/0 /**/; i < bitWidth; i++)
 		{
 			if (sumH[i] < columnH[i])
 			{
@@ -389,7 +384,7 @@ Result bvAddBothWays(vector<FixedBits*>& children, FixedBits& output)
 		}
 
 		// Go from low to high making each of the sums consistent.
-		for (int i = /**/1 /**/; i < bitWidth; i++)
+		for (unsigned i = /**/1 /**/; i < bitWidth; i++)
 		{
 			assert((columnH[i] >= columnL[i]) && (columnL[i] >= 0));
 			if (sumH[i] > columnH[i] + (sumH[i - 1] / 2))
@@ -409,7 +404,7 @@ Result bvAddBothWays(vector<FixedBits*>& children, FixedBits& output)
 		}
 
 		// go from high to low, making each of the sums consistent.
-		for (int i = /**/bitWidth - 1 /**/; i >= 1; i--)
+		for (int i = /**/(int)bitWidth - 1 /**/; i >= 1; i--)
 		{
 			if ((sumH[i] == sumL[i]))
 			{
@@ -453,7 +448,7 @@ Result bvAddBothWays(vector<FixedBits*>& children, FixedBits& output)
 			printArray(sumH, bitWidth);
 		}
 
-		for (int column = 0; column < bitWidth; column++)
+		for (unsigned column = 0; column < bitWidth; column++)
 		{
 			if (sumH[column] == sumL[column])
 			{
@@ -464,7 +459,6 @@ Result bvAddBothWays(vector<FixedBits*>& children, FixedBits& output)
 				{
 					output.setFixed(column, true);
 					output.setValue(column, newResult);
-					result = CHANGED;
 					changed = true;
 				}
 				else if (output.isFixed(column) && (output.getValue(column) != newResult))

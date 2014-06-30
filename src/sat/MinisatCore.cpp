@@ -10,7 +10,7 @@ namespace BEEV
   MinisatCore<T>::MinisatCore(volatile bool& interrupt)
   {
      s = new T(interrupt);
-  };
+  }
 
   template <class T>
   MinisatCore<T>::~MinisatCore()
@@ -45,13 +45,13 @@ namespace BEEV
 
   template <class T>
   uint8_t
-  MinisatCore<T>::modelValue(Var x) const
+  MinisatCore<T>::modelValue(uint32_t x) const
   {
     return Minisat::toInt(s->modelValue(x));
   }
 
   template <class T>
-  Minisat::Var
+  uint32_t
   MinisatCore<T>::newVar()
   {
     return s->newVar();
@@ -71,7 +71,7 @@ namespace BEEV
 
 
   template <class T>
-  int MinisatCore<T>::nVars()
+  unsigned long MinisatCore<T>::nVars()
   {return s->nVars();}
 
   template <class T>
@@ -98,4 +98,4 @@ namespace BEEV
   // But I'm not so sure now because I don't understand what eliminate() does in the simp solver.
   template class MinisatCore<Minisat::Solver>;
   //template class MinisatCore<Minisat::SimpSolver>;
-};
+}

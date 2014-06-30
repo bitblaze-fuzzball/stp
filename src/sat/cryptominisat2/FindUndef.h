@@ -22,7 +22,7 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
 #define FINDUNDEF_H
 
 #ifdef _MSC_VER
-#include <msvc/stdint.h>
+#include "msvc/stdint.h"
 #else
 #include <stdint.h>
 #endif //_MSC_VER
@@ -57,6 +57,6 @@ class FindUndef {
 
 };
 
-}; //NAMESPACE MINISAT
+} //NAMESPACE MINISAT
 
 #endif //

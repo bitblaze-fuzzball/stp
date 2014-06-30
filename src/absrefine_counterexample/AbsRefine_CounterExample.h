@@ -211,5 +211,5 @@ namespace BEEV
         }
     }
   };//end of Class CompleteCounterExample
-};//end of namespace
+} //end of namespace
 #endif

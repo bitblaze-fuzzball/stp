@@ -2631,4 +2631,4 @@ void Solver::printStats()
     cout.copyfmt(saved_fmt);
 }
 
-}; //NAMESPACE MINISAT
+} //NAMESPACE MINISAT

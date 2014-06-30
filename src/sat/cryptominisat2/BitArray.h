@@ -26,7 +26,7 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
 #include <string.h>
 #include <assert.h>
 #ifdef _MSC_VER
-#include <msvc/stdint.h>
+#include "msvc/stdint.h"
 #else
 #include <stdint.h>
 #endif //_MSC_VER
@@ -190,7 +190,7 @@ private:
     uint64_t* mp;
 };
 
-}; //NAMESPACE MINISAT
+} //NAMESPACE MINISAT
 
 #endif //BITARRAY_H
 

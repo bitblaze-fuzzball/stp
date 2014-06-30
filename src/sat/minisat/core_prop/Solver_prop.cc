@@ -173,14 +173,14 @@ Solver_prop::addArray(int array_id, const vec<Lit>& i, const vec<Lit>& v, const 
 
     if (!ok) return false;
 
-    if (i.size() > INDEX_BIT_WIDTH || ki.size() > INDEX_BIT_WIDTH)
+    if (i.size() > (int)INDEX_BIT_WIDTH || ki.size() > (int)INDEX_BIT_WIDTH)
         {
             printf("The array propagators unfortunately don't do arbitrary precision integers yet. "
                     "With the INDICES_128BITS compile time flag STP does 128-bits on 64-bit machines compiled with GCC. "
-                    "Currently STP is compiled to use %lu bit indices. "
-                    "Unfortunately your problem has array indexes of size %lu bits. "
+                    "Currently STP is compiled to use %d bit indices. "
+                    "Unfortunately your problem has array indexes of size %d bits. "
                     "STP does arbitrary precision indices with the '--oldstyle-refinement' or the '-r' flags.\n",
-		    INDEX_BIT_WIDTH, (unsigned long)std::max(i.size(), ki.size()));
+                    (int)INDEX_BIT_WIDTH, std::max(i.size(), ki.size()));
             exit(1);
         }
 
@@ -300,7 +300,7 @@ Solver_prop::index_as_int(const ArrayAccess& iv)
         return iv.constantIndex();
 
     index_type t = 0;
-    assert(INDEX_BIT_WIDTH >= iv.indexSize());
+    assert((int)INDEX_BIT_WIDTH >= iv.indexSize());
 
     for (int i = 0; i < iv.indexSize(); i++)
         {
@@ -890,7 +890,7 @@ void Solver_prop::removeClause(CRef cr) {
     // Don't leave pointers to free'd memory!
     if (locked(c)) vardata[var(c[0])].reason = CRef_Undef;
     c.mark(1); 
-    ca.free(cr);
+    ca._free(cr);
 }
 
 
@@ -956,8 +956,9 @@ void Solver_prop::cancelUntil(int level) {
         for (int c = trail.size()-1; c >= trail_lim[level]; c--){
             Var      x  = var(trail[c]);
             assigns [x] = l_Undef;
-            if (phase_saving > 1 || (phase_saving == 1) && c > trail_lim.last())
+            if (phase_saving > 1 || ((phase_saving == 1) && c > trail_lim.last())) {
                 polarity[x] = sign(trail[c]);
+            }
             insertVarOrder(x); }
         qhead = trail_lim[level];
         trail.shrink(trail.size() - trail_lim[level]);
@@ -1138,7 +1139,6 @@ void Solver_prop::analyze(CRef confl, vec<Lit>& out_learnt, int& out_btlevel)
 
                 if (debug_print)
                     printf("%d %d\n", toInt(p), toInt(var(p)));
-                Minisat::Clause  cl= ca[confl];
 
                 assert(ca[confl][0] ==p);
                 assert(value(p) != l_Undef);
@@ -1547,7 +1547,7 @@ lbool Solver_prop::search(int nof_conflicts)
 
         }else{
             // NO CONFLICT
-            if (nof_conflicts >= 0 && conflictC >= nof_conflicts || !withinBudget()){
+            if ((nof_conflicts >= 0 && conflictC >= nof_conflicts) || !withinBudget()){
                 // Reached bound on number of conflicts:
                 progress_estimate = progressEstimate();
                 cancelUntil(0);

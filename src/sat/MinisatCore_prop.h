@@ -36,13 +36,13 @@ namespace BEEV
     bool
     solve(); // Search without assumptions.
 
-    virtual uint8_t modelValue(Var x) const;
+    virtual uint8_t modelValue(uint32_t x) const;
 
-    virtual Var newVar();
+    virtual uint32_t newVar();
 
     void setVerbosity(int v);
 
-    int nVars();
+    unsigned long nVars();
 
     void printStats();
 
@@ -53,6 +53,5 @@ namespace BEEV
     virtual void setSeed(int i);
   };
 }
-;
 
 #endif

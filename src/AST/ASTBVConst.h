@@ -126,5 +126,5 @@ namespace BEEV
     // Return the bvconst. It is a const-value
     CBV GetBVConst() const;
   }; //End of ASTBVConst  
-};//end of namespace
+} //end of namespace
 #endif

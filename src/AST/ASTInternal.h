@@ -193,5 +193,5 @@ namespace BEEV
     } //End of SetNodeNum()
 
   }; //End of Class ASTInternal
-}; //end of namespace
+} //end of namespace
 #endif

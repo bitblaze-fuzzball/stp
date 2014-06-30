@@ -24,7 +24,7 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
 
 #include <cassert>
 #ifdef _MSC_VER
-#include <msvc/stdint.h>
+#include "msvc/stdint.h"
 #else
 #include <stdint.h>
 #endif //_MSC_VER
@@ -182,8 +182,8 @@ public:
 const llbool l_Nothing  = toLbool(2);
 const llbool l_Continue = toLbool(3);
 
-lbool::lbool(llbool b) : value(b.value) {};
+lbool::lbool(llbool b) : value(b.value) {}
 
-}; //NAMESPACE MINISAT
+} //NAMESPACE MINISAT
 
 #endif //SOLVERTYPES_H

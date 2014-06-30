@@ -17,6 +17,10 @@
 #include "../simplifier/simplifier.h"
 #include "../AST/ArrayTransformer.h"
 
+#ifdef _MSC_VER
+#include <compdep.h>
+#endif
+
 namespace BEEV
 {
 
@@ -1572,7 +1576,7 @@ namespace BEEV
         notY.push_back(nf->CreateNode(NOT, y[i]));
         }
 
-      mult_type xt[x.size()];
+      mult_type *xt = (mult_type*) alloca(sizeof(mult_type) * x.size());
       convert(x, nf, xt);
 
       if (debug_multiply)
@@ -1583,7 +1587,7 @@ namespace BEEV
         cerr << xN << endl;
         }
 
-      mult_type yt[x.size()];
+      mult_type *yt = (mult_type*) alloca(sizeof(mult_type) * x.size());
       convert(y, nf, yt);
 
       if (debug_multiply)
@@ -1664,7 +1668,7 @@ namespace BEEV
     MultiplicationStats*
     BitBlaster<BBNode, BBNodeManagerT>::getMS(const ASTNode&n, int& highestZero)
     {
-      MultiplicationStats * ms = 0;
+      MultiplicationStats * ms = NULL;
       highestZero = -1;
 
       if (statsFound(n))
@@ -1819,24 +1823,21 @@ namespace BEEV
     void
     BitBlaster<BBNode, BBNodeManagerT>::checkFixed(const BBNodeVec& v, const ASTNode& n)
     {
-      if (cb == NULL)
+      if (cb == NULL) {
         return;
+      }
 
-      if (cb->isUnsatisfiable())
+      if (cb->isUnsatisfiable()) {
         return;
+      }
 
-      if (cb->fixedMap->map->find(n) != cb->fixedMap->map->end())
-        {
+      if (cb->fixedMap->map->find(n) != cb->fixedMap->map->end()) {
         FixedBits* b = cb->fixedMap->map->find(n)->second;
-        for (int i = 0; i < b->getWidth(); i++)
-          {
-          if (b->isFixed(i))
-            if (b->getValue(i))
-              {
+        for (int i = 0; i < b->getWidth(); i++) {
+          if (b->isFixed(i)) {
+            if (b->getValue(i)) {
               assert(v[i]== BBTrue);
-              }
-            else
-              {
+            } else {
               if (v[i] != BBFalse)
                 {
                 cerr << *b;
@@ -1846,9 +1847,10 @@ namespace BEEV
                 }
 
               assert(v[i]== BBFalse);
-              }
+            }
           }
         }
+      }
     }
 
   // If it's not booth encoded, and the column sum is zero,
@@ -2739,14 +2741,7 @@ namespace BEEV
       // Either zero or one of the nodes in bit_comparisons can be true.
 
       BBNode output;
-#ifdef CRYPTOMINISAT__2
-      if (bit_comparisons.size() > 1)
-      output = nf->CreateNode(XOR, bit_comparisons);
-      else
-      output = bit_comparisons[0];
-#else
       output = nf->CreateNode(OR, bit_comparisons);
-#endif
       return output;
     }
 

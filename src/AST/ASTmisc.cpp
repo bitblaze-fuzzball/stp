@@ -10,6 +10,12 @@
 #include "AST.h"
 #include "../STPManager/STPManager.h"
 #include "../STPManager/NodeIterator.h"
+#ifdef _MSC_VER
+// avoid TRUE and FALSE to be set to 1 and 0 in winmin.h
+#define TRUE TRUE
+#define FALSE FALSE
+#endif
+#include <sys/time.h>
 
 namespace BEEV
 {
@@ -154,7 +160,7 @@ namespace BEEV
 
     visited.insert(n.GetNodeNum());
 
-    for (int i = 0; i < n.Degree(); i++)
+    for (size_t i = 0; i < n.Degree(); i++)
       numberOfReadsLessThan(n[i], visited, soFar,limit);
   }
 
@@ -628,6 +634,7 @@ namespace BEEV
   }
 
 
+#ifndef _MSC_VER
   itimerval timeout;
   void setHardTimeout(int sec)
   {
@@ -638,6 +645,11 @@ namespace BEEV
   timeout.it_value.tv_sec     = sec;
   setitimer(ITIMER_VIRTUAL, &timeout, NULL);
   }
+#else
+  void setHardTimeout(int) {
+      std::cerr << "WARNING: STP does not support hard timeout for Windows builds" << std::endl;
+  }
+#endif
 
   long getCurrentTime()
   {
@@ -646,4 +658,4 @@ namespace BEEV
     return (1000 * t.tv_sec) + (t.tv_usec / 1000);
   }
 
-};//end of namespace
+} //end of namespace

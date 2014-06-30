@@ -15,6 +15,10 @@
 #include "../CPP/cpp_interface.h"
 #include "../extlib-abc/cnf_short.h"
 
+#ifdef _MSC_VER
+#include <compdep.h>
+#endif
+
 using std::cout;
 using std::ostream;
 using std::stringstream;
@@ -73,6 +77,9 @@ void vc_setInterfaceFlags(VC vc, enum ifaceflag_t f, int param_value) {
       break;
   case CMS2:
       b->UserFlags.solver_to_use = BEEV::UserDefinedFlags::CRYPTOMINISAT_SOLVER;
+      break;
+  case CMS4:
+      b->UserFlags.solver_to_use = BEEV::UserDefinedFlags::CRYPTOMINISAT4_SOLVER;
       break;
   case MSP:
       b->UserFlags.solver_to_use = BEEV::UserDefinedFlags::MINISAT_PROPAGATORS;
@@ -247,6 +254,8 @@ static void vc_printAssertsToStream(VC vc, ostream &os, int simplify_print) {
     q.PL_Print(os);
     os << ");" << endl;
   }
+  delete simp;
+  simp = NULL;
 }
 
 void vc_printAsserts(VC vc, int simplify_print) {
@@ -278,6 +287,9 @@ void vc_printQueryStateToBuffer(VC vc, Expr e,
   //b->Begin_RemoveWrites = false;
   q.PL_Print(os);
   os << " );" << endl;
+
+  delete simp;
+  simp = NULL;
 
   // convert to a c buffer
   string s = os.str();
@@ -468,6 +480,7 @@ int vc_query_with_timeout(VC vc, Expr e, int timeout_ms) {
   bmstar b = (bmstar)(stp->bm);
 
   assert(!BEEV::ParserBM->soft_timeout_expired);
+#ifndef _MSC_VER
   if (timeout_ms != -1)
     {
       itimerval timeout;
@@ -478,7 +491,11 @@ int vc_query_with_timeout(VC vc, Expr e, int timeout_ms) {
       timeout.it_value.tv_sec     = timeout_ms / 1000;
       setitimer(ITIMER_VIRTUAL, &timeout, NULL);
     }
-
+#else
+    if (timeout_ms != -1) {
+        BEEV::FatalError("CInterface: query with timeout not supported on Windows builds");
+    }
+#endif
   if(!BEEV::is_Form_kind(a->GetKind())) 
     {     
       BEEV::FatalError("CInterface: Trying to QUERY a NON formula: ",*a);
@@ -507,12 +524,14 @@ int vc_query_with_timeout(VC vc, Expr e, int timeout_ms) {
       output = stp->TopLevelSTP(b->CreateNode(BEEV::TRUE),*a);
     }
 
+#ifndef _MSC_VER
   if (timeout_ms !=-1)
     {
       // Reset the timer.
       setitimer(ITIMER_VIRTUAL, NULL, NULL);
       BEEV::ParserBM->soft_timeout_expired = false;
     }
+#endif
 
   return output;
 } //end of vc_query
@@ -614,9 +633,7 @@ WholeCounterExample vc_getWholeCounterExample(VC vc) {
   bmstar b = (bmstar)(((stpstar)vc)->bm);
   ctrexamplestar ce = (ctrexamplestar)(((stpstar)vc)->Ctr_Example);  
 
-  CompleteCEStar c =
-    new BEEV::CompleteCounterExample(ce->GetCompleteCounterExample(),
-                                     b);
+  CompleteCEStar c = new BEEV::CompleteCounterExample(ce->GetCompleteCounterExample(),b);
   return c;
 }
 
@@ -1450,7 +1467,6 @@ Expr vc_bvSignExtend(VC vc, Expr ccc, int nbits) {
 
 //! Return an int from a constant bitvector expression
 int getBVInt(Expr e) {
-  //bmstar b = (bmstar)(((stpstar)vc)->bm);
   nodestar a = (nodestar)e;
 
   if(BEEV::BVCONST != a->GetKind())
@@ -1464,7 +1480,6 @@ int getBVInt(Expr e) {
 
 //! Return an unsigned int from a constant bitvector expression
 unsigned int getBVUnsigned(Expr e) {
-  //bmstar b = (bmstar)(((stpstar)vc)->bm);
   nodestar a = (nodestar)e;
 
   if(BEEV::BVCONST != a->GetKind())
@@ -1478,7 +1493,6 @@ unsigned int getBVUnsigned(Expr e) {
 
 //! Return an unsigned long long int from a constant bitvector expression
 unsigned long long int getBVUnsignedLongLong(Expr e) {
-  //bmstar b = (bmstar)(((stpstar)vc)->bm);
   nodestar a = (nodestar)e;
 
   if(BEEV::BVCONST != a->GetKind())
@@ -1575,10 +1589,9 @@ Expr vc_bvWriteToMemoryArray(VC vc,
     Expr newarray = vc_writeExpr(vc, array, byteIndex, c);
     while(--numOfBytes > 0) {
       low = low-8;
-            
       low_elem = low_elem + 8;
       hi_elem = low_elem + 7;
-            
+
       c = vc_bvExtract(vc, element, hi_elem, low_elem);
       newarray =
         vc_writeExpr(vc, newarray,

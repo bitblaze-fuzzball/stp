@@ -34,11 +34,11 @@ namespace BEEV
    * _ASTNode_to_SATVar.
    */
 
-  SATSolver::Var
+  uint32_t
   ToSAT::LookupOrCreateSATVar(SATSolver& newSolver, const ASTNode& n)
   {
     ASTtoSATMap::iterator it;
-    SATSolver::Var v;
+    uint32_t v;
 
     //look for the symbol in the global map from ASTNodes to ints. if
     //not found, create a S.newVar(), else use the existing one.
@@ -49,12 +49,13 @@ namespace BEEV
 
         //ASSUMPTION: I am assuming that the newSolver.newVar() call increments v
         //by 1 each time it is called, and the initial value of a
-        //SATSolver::Var is 0.
+        //uint32_t is 0.
 
         // Copies the symbol into the map that is used to build the counter example.
         // For boolean we create a vector of size 1.
-        if (n.GetKind() == BOOLEXTRACT && n[0].GetKind() == SYMBOL || (n.GetKind() == SYMBOL && !isTseitinVariable(n)))
-          {
+        if ((n.GetKind() == BOOLEXTRACT && n[0].GetKind() == SYMBOL)
+            || (n.GetKind() == SYMBOL && !isTseitinVariable(n))
+        ) {
             const ASTNode& symbol = n.GetKind() == BOOLEXTRACT ? n[0] : n;
             const unsigned index = n.GetKind() == BOOLEXTRACT ? n[1].GetUnsignedConst() : 0;
             const unsigned width = n.GetKind() == BOOLEXTRACT ? symbol.GetValueWidth(): 1;
@@ -99,7 +100,6 @@ namespace BEEV
 	  CountersAndStats("SAT Solver", bm);
     bm->GetRunTimes()->start(RunTimes::SendingToSAT);
 
-    int input_clauselist_size = cll.size();
     if (cll.size() == 0)
       {
         FatalError("toSATandSolve: Nothing to Solve", ASTUndefined);    
@@ -116,7 +116,7 @@ namespace BEEV
 
     //iterate through the list (conjunction) of ASTclauses cll
     ClauseContainer::const_iterator i = cc.begin(), iend = cc.end();
-    for (int count=0, flag=0; i != iend; i++)
+    for (; i != iend; i++)
       {
         satSolverClause.clear();
         vector<const ASTNode*>::const_iterator j    = (*i)->begin(); 
@@ -129,7 +129,7 @@ namespace BEEV
             //clauseVec.push_back(node);
             bool negate = (NOT == node.GetKind()) ? true : false;
             ASTNode n = negate ? node[0] : node;
-            SATSolver::Var v = LookupOrCreateSATVar(newSolver, n);
+            uint32_t v = LookupOrCreateSATVar(newSolver, n);
             Minisat::Lit l = SATSolver::mkLit(v, negate);
             satSolverClause.push(l);
           }
@@ -140,26 +140,7 @@ namespace BEEV
         //        {
         //          continue;
         //        }
-#if defined CRYPTOMINISAT__2
-        if(add_xor_clauses)
-          {
-            newSolver.addXorClause(satSolverClause, false);
-          }
-        else 
-          {
-            newSolver.addClause(satSolverClause);
-          }
-#else
         newSolver.addClause(satSolverClause);
-#endif
-
-#if defined CRYPTOMINISAT__2
-    newSolver.findNormalXors = false;
-    newSolver.doSubsumption = true;
-    newSolver.verbosity = 0;
-    //newSolver.fixRestartType = static_restart;
-    newSolver.doPartHandler = true;
-#endif
 
 // 	if(enable_clausal_abstraction && 
 // 	   count++ >= input_clauselist_size*CLAUSAL_ABSTRACTION_CUTOFF)
@@ -220,7 +201,7 @@ namespace BEEV
     	            ASTtoSATMap::iterator it =  _ASTNode_to_SATVar_Map.find(n);
     	            assert(it != _ASTNode_to_SATVar_Map.end());
 
-    	            SATSolver::Var v = it->second;
+    	            uint32_t v = it->second;
 
     				if (negate)
     					file << "-" << (v + 1) << " ";
@@ -313,10 +294,10 @@ namespace BEEV
     ClauseBuckets::iterator itend = cb->end();
 
     bool sat = false;
-    for(int count=1;it!=itend;it++, count++)
+    for(size_t count=1; it!=itend; it++, count++)
       {
         ClauseList *cl = (*it).second;
-	    sat = toSATandSolve(SatSolver,*cl, count==cb->size(),cm);
+        sat = toSATandSolve(SatSolver,*cl, count == cb->size(), cm);
 
         if(!sat)
           {
@@ -392,13 +373,6 @@ namespace BEEV
     	return sat;
       }
 
-#if defined CRYPTOMINISAT__2
-    if(!xorcl->asList()->empty())
-      {
-        sat = toSATandSolve(SatSolver, *xorcl, true, cm, true,false);
-      }
-#endif
-
     delete xorcl;
 	if (NULL != cm)
 		delete cm;
@@ -420,7 +394,7 @@ namespace BEEV
   // assignment.
   ASTNode ToSAT::SymbolTruthValue(SATSolver &newSolver, ASTNode form)
   {
-    SATSolver::Var satvar = _ASTNode_to_SATVar_Map[form];
+    uint32_t satvar = _ASTNode_to_SATVar_Map[form];
     if (newSolver.model[satvar] == SATSolver::l_False)
       {
         return ASTFalse;
@@ -550,4 +524,4 @@ namespace BEEV
     return (CheckBBandCNFMemo[form] = result);
   } //end of CheckBBandCNF_int()
 #endif
-}; //end of namespace BEEV
+} //end of namespace BEEV

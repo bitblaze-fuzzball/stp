@@ -43,16 +43,15 @@ namespace BEEV
     virtual bool
     solve()=0; // Search without assumptions.
 
-    typedef int Var;
     typedef uint8_t lbool;
 
-    static inline  Minisat::Lit  mkLit     (Var var, bool sign) { Minisat::Lit p; p.x = var + var + (int)sign; return p; }
+    static inline  Minisat::Lit  mkLit     (uint32_t var, bool sign) { Minisat::Lit p; p.x = var + var + (int)sign; return p; }
 
-    virtual uint8_t   modelValue (Var x) const = 0;
+    virtual uint8_t   modelValue (uint32_t x) const = 0;
 
-    virtual Var newVar() =0;
+    virtual uint32_t newVar() =0;
 
-    virtual int nVars() =0;
+    virtual unsigned long nVars() =0;
 
     virtual void printStats() = 0;
 
@@ -70,7 +69,7 @@ namespace BEEV
     virtual lbool undef_literal() =0;
 
     // The simplifying solvers shouldn't eliminate index / value variables.
-    virtual void setFrozen(Var x)
+    virtual void setFrozen(uint32_t x)
     { (void)x; }
 
     virtual int nClauses()
@@ -86,5 +85,5 @@ namespace BEEV
 
     }
   };
-};
+}
 #endif

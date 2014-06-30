@@ -660,5 +660,5 @@ namespace BEEV
 
  		_interior_unique_table.clear();
  	}
-}; // end namespace beev
+} // end namespace beev
 

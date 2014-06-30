@@ -22,7 +22,7 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
 #define GAUSSIANCONFIG_H
 
 #ifdef _MSC_VER
-#include <msvc/stdint.h>
+#include "msvc/stdint.h"
 #else
 #include <stdint.h>
 #endif //_MSC_VER
@@ -60,6 +60,6 @@ class GaussianConfig
     uint32_t minMatrixRows; //The minimum matrix size -- no. of rows
 };
 
-}; //NAMESPACE MINISAT
+} //NAMESPACE MINISAT
 
 #endif //GAUSSIANCONFIG_H

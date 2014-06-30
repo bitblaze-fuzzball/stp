@@ -233,26 +233,25 @@ Result bvSignExtendBothWays(vector<FixedBits*>& children, FixedBits& output)
 
 Result bvExtractBothWays(vector<FixedBits*>& children, FixedBits& output)
 {
-	const int numberOfChildren = children.size();
-	const int outputBitWidth = output.getWidth();
+	const size_t numberOfChildren = children.size();
+	const unsigned outputBitWidth = output.getWidth();
 
 	Result result = NO_CHANGE;
 
 	assert(3 == numberOfChildren);
 
-	int top = children[1]->getUnsignedValue();
-	int bottom = children[2]->getUnsignedValue();
+	unsigned top = children[1]->getUnsignedValue();
+	unsigned bottom = children[2]->getUnsignedValue();
 
 	FixedBits& input = *(children[0]);
 
 	assert(top >= bottom);
-	assert(bottom >=0);
 	assert(top - bottom + 1 == outputBitWidth);
 	assert(top < input.getWidth());
 
-	for (int outputPosition = 0; outputPosition < outputBitWidth; outputPosition++)
+	for (unsigned outputPosition = 0; outputPosition < outputBitWidth; outputPosition++)
 	{
-		int inputPosition = outputPosition + bottom;
+		unsigned inputPosition = outputPosition + bottom;
 
 		if (input.isFixed(inputPosition) && output.isFixed(outputPosition))
 			if (input.getValue(inputPosition) ^ output.getValue(outputPosition))
@@ -323,13 +322,12 @@ Result bvUnaryMinusBothWays(vector<FixedBits*>& children, FixedBits& output)
 Result bvConcatBothWays(vector<FixedBits*>& children, FixedBits& output)
 {
 	Result r = NO_CHANGE;
-	const int numberOfChildren = children.size();
-	int current = 0;
-	for (int i = numberOfChildren - 1; i >= 0; i--) // least significant is last.
-
+	const size_t numberOfChildren = children.size();
+	unsigned current = 0;
+	for (int i = (int)numberOfChildren - 1; i >= 0; i--) // least significant is last.
 	{
 		FixedBits& child = *children[i];
-		for (int j = 0; j < child.getWidth(); j++)
+		for (unsigned j = 0; j < child.getWidth(); j++)
 		{
 			// values are different. Bad.
 			if (output.isFixed(current) && child.isFixed(j) && (output.getValue(current) != child.getValue(j)))

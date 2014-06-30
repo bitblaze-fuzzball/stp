@@ -7,9 +7,8 @@ set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/modules)
 # -----------------------------------------------------------------------------
 # Make RelWithDebInfo the default build type if otherwise not set
 # -----------------------------------------------------------------------------
-
+set(build_types Debug Release RelWithDebInfo MinSizeRel)
 if(NOT CMAKE_BUILD_TYPE)
-      set(build_types Debug Release RelWithDebInfo MinSizeRel)
 
       message(STATUS "You can choose the type of build, options are:${build_types}")
       set(CMAKE_BUILD_TYPE RelWithDebInfo CACHE String
@@ -21,6 +20,34 @@ if(NOT CMAKE_BUILD_TYPE)
       set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS ${build_types})
 endif()
 message(STATUS "Doing a ${CMAKE_BUILD_TYPE} build")
+
+# -----------------------------------------------------------------------------
+# Option to enable/disable assertions
+# -----------------------------------------------------------------------------
+
+# Filter out definition of NDEBUG from the default build configuration flags.
+# We will add this ourselves if we want to disable assertions
+foreach (build_config ${build_types})
+    string(TOUPPER ${build_config} upper_case_build_config)
+    foreach (language CXX C)
+        set(VAR_TO_MODIFY "CMAKE_${language}_FLAGS_${upper_case_build_config}")
+        string(REGEX REPLACE "(^| )[/-]D *NDEBUG($| )"
+                             " "
+                             replacement
+                             "${${VAR_TO_MODIFY}}"
+              )
+        #message("Original (${VAR_TO_MODIFY}) is ${${VAR_TO_MODIFY}} replacement is ${replacement}")
+        set(${VAR_TO_MODIFY} "${replacement}" CACHE STRING "Default flags for ${build_config} configuration" FORCE)
+    endforeach()
+endforeach()
+
+option(ENABLE_ASSERTIONS "Build with assertions enabled" ON)
+if (ENABLE_ASSERTIONS)
+    # NDEBUG was already removed.
+else()
+    # Note this definition doesn't appear in the cache variables.
+    add_definitions(-DNDEBUG)
+endif()
 
 # -----------------------------------------------------------------------------
 # Enable LLVM sanitizations.
@@ -52,6 +79,13 @@ endif()
 # STP will link against this client library
 # -----------------------------------------------------------------------------
 option(BUILD_SHARED_LIBS "Build client library as a shared library" ON)
+
+if(WIN32)
+  # building of shared lib on windows is not done at source level
+  set(BUILD_SHARED_LIBS OFF)
+  message(WARNING "Disabling building of shared library on Windows")
+endif(WIN32)
+
 if (BUILD_SHARED_LIBS)
   option(ALSO_BUILD_STATIC_LIB "IF building shared library, also build the static library" ON)
 
@@ -84,7 +118,7 @@ if(BUILD_SHARED_LIBS)
     add_cxx_flag_if_supported("-fPIC")
 endif()
 
-check_cxx_compiler_flag("-std=gnu++11" HAVE_FLAG_STD_GNUPP11)
+check_cxx_compiler_flag("-std=gnu++11" HAVE_FLAG_STD_GNUCPP11)
 check_cxx_compiler_flag("-std=c++11" HAVE_FLAG_STD_CPP11)
 check_cxx_compiler_flag("-std=c++0x" HAVE_FLAG_STD_CPP0X)
 check_cxx_compiler_flag("-stdlib=libc++" HAVE_FLAG_STDLIB_LIBCPP)
@@ -102,7 +136,8 @@ if(APPLE AND HAVE_FLAG_STDLIB_LIBCPP)
 endif()
 
 add_cxx_flag_if_supported("-Wall")
-add_cxx_flag_if_supported("-Wextra")
+#add_cxx_flag_if_supported("-Wextra")
+add_cxx_flag_if_supported("-pedantic")
 add_cxx_flag_if_supported("-Wunused")
 add_cxx_flag_if_supported("-Wsign-compare")
 add_cxx_flag_if_supported("-Wtype-limits")
@@ -121,9 +156,6 @@ endif()
 
 
 if(WIN32)
-  # build shared lib on windows is not prepared at source level
-  set(BUILD_SHARED_LIBS OFF)
-  message(WARNING "Disabling building of shared library on Windows")
   set(FLEX_PATH_HINT "e:/cygwin/bin" CACHE STRING "Flex path hints, can be null if on your path")
   set(BISON_PATH_HINT "e:/cygwin/bin" CACHE STRING "Bison path hints, can be null if on your path")
   set(PERL_PATH_HINT "C:/Perl/bin" CACHE STRING "Perl path hints, can be null if on your pat")
@@ -133,11 +165,15 @@ if(WIN32)
   if(MSVC)
       set(OPTIMIZITION_FLAGS  "/GL /Ox /Oi /Ot /Oy")
       set(STP_DEFS_COMM ${STP_DEFS_COMM} -D_CRT_SECURE_NO_WARNINGS)
-      set(STP_INCL_COMM ../winports ../winports/msc99hdr ${STP_INCL_COMM})
+      set(STP_INCL_COMM windows/winports windows/winports/msc99hdr ${STP_INCL_COMM})
+      include_directories(${STP_INCL_COMM})
 
       # stack size of MSVC must be specified
       string(REGEX REPLACE "/STACK:[0-9]+" "" CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS})
       set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /STACK:256000000")
+
+      # inline is not a keyword in visual studios old C version, allow its redefinition
+      add_definitions("-D_ALLOW_KEYWORD_MACROS")
   else()
       # mingw
       set(STP_DEFS_COMM ${STP_DEFS_COMM} -DEXT_HASH_MAP)
@@ -190,6 +226,23 @@ endif()
 find_package( Boost 1.46 REQUIRED COMPONENTS program_options system)
 include_directories(${Boost_INCLUDE_DIRS})
 
+# -----------------------------------------------------------------------------
+# Find CryptoMiniSat4
+# -----------------------------------------------------------------------------
+set(cryptominisat4_DIR "" CACHE PATH "Path to directory containing cryptominisat4Config.cmake")
+find_package(cryptominisat4 CONFIG)
+if (cryptominisat4_FOUND AND HAVE_FLAG_STD_CPP11)
+    message(STATUS "Found CryptoMiniSat4 and C++11, allowing --cryptominisat4 option")
+    add_definitions(-DUSE_CRYPTOMINISAT4)
+    include_directories(${CRYPTOMINISAT4_INCLUDE_DIRS})
+    set(USE_CRYPTOMINISAT4 ON)
+else()
+    message(WARNING "CryptoMiniSat4 or C++11 support not found, not allowing --cryptominisat4 option")
+endif()
+
+# -----------------------------------------------------------------------------
+# Find Parser and Lexer generators
+# -----------------------------------------------------------------------------
 find_package(BISON REQUIRED)
 find_package(FLEX REQUIRED)
 

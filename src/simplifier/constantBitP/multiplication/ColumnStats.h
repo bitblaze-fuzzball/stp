@@ -8,6 +8,11 @@
 #ifndef COLUMNSTATS_H_
 #define COLUMNSTATS_H_
 
+#include "../FixedBits.h"
+#include <assert.h>
+#include <ostream>
+using std::endl;
+
 namespace simplifier
 {
   namespace constantBitP
@@ -17,12 +22,12 @@ namespace simplifier
 
     struct ColumnStats
     {
-      int columnUnfixed; // both unfixed.
-      int columnOneFixed; // one of the values is fixed to one, the other is unfixed.
-      int columnOnes; // both are fixed to one.
-      int columnZeroes; // one is fixed to zero.
+      unsigned columnUnfixed; // both unfixed.
+      unsigned columnOneFixed; // one of the values is fixed to one, the other is unfixed.
+      unsigned columnOnes; // both are fixed to one.
+      unsigned columnZeroes; // one is fixed to zero.
 
-      ColumnStats(const FixedBits & x, const FixedBits & y, int index)
+      ColumnStats(const FixedBits & x, const FixedBits & y, const unsigned index)
       {
         columnUnfixed = 0;
         columnOneFixed = 0;
@@ -35,7 +40,7 @@ namespace simplifier
         if (debug_multiply)
           log << "ColumnStats" << index << " " << x << " " << y << endl;
 
-        for (unsigned i = 0; i <= (unsigned) index; i++)
+        for (unsigned i = 0; i <= index; i++)
           {
           bool xIsFixed = x.isFixed(index - i);
           bool yIsFixed;
@@ -54,7 +59,6 @@ namespace simplifier
             columnUnfixed++;
           }
 
-        assert(columnOnes >= 0 && columnUnfixed >= 0 && columnZeroes >= 0 && columnOneFixed >= 0);
         assert(columnOnes + columnUnfixed + columnOneFixed + columnZeroes == (index + 1));
       }
 

@@ -22,7 +22,7 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
 #define CLAUSECLEANER_H
 
 #ifdef _MSC_VER
-#include <msvc/stdint.h>
+#include "msvc/stdint.h"
 #else
 #include <stdint.h>
 #endif //_MSC_VER
@@ -79,6 +79,6 @@ inline void ClauseCleaner::removeAndCleanAll(bool nolimit)
     cleanClauses(solver.learnts, ClauseCleaner::learnts, limit);
 }
 
-}; //NAMESPACE MINISAT
+} //NAMESPACE MINISAT
 
 #endif //CLAUSECLEANER_H

@@ -81,7 +81,10 @@ namespace BEEV
   ASTNode
   SubstitutionMap::replace(const ASTNode& n, ASTNodeMap& fromTo, ASTNodeMap& cache, NodeFactory * nf)
   {
-    return replace(n, fromTo, cache, nf, false, false);
+    if (0==fromTo.size())
+	return n;
+   else
+	return replace(n, fromTo, cache, nf, false, false);
   }
 
 // NOTE the fromTo map is changed as we traverse downwards.
@@ -216,7 +219,7 @@ namespace BEEV
     vars.VarSeenInTerm(vars.getSymbol(n1), rhs_visited, rhs, av);
 
     sort(av.begin(), av.end());
-    for (int i = 0; i < av.size(); i++)
+    for (size_t i = 0; i < av.size(); i++)
       {
       if (i != 0 && av[i] == av[i - 1])
         continue; // Treat it like a set of Symbol* in effect.

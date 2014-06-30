@@ -24,7 +24,7 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
 #include <vector>
 #include <limits>
 #ifdef _MSC_VER
-#include <msvc/stdint.h>
+#include "msvc/stdint.h"
 #else
 #include <stdint.h>
 #endif //_MSC_VER
@@ -241,6 +241,6 @@ inline void Gaussian::set_disabled(const bool toset)
 
 std::ostream& operator << (std::ostream& os, const vec<Lit>& v);
 
-}; //NAMESPACE MINISAT
+} //NAMESPACE MINISAT
 
 #endif //GAUSSIAN_H

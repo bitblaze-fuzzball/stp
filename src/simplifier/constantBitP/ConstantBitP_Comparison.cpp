@@ -108,27 +108,21 @@ bool
 fast_exit(FixedBits& c0, FixedBits& c1)
 {
   assert(c0.getWidth() == c1.getWidth());
-  for (int i = c0.getWidth() - 1; i >= 0; i--)
-    {
+  for (int i = (int)c0.getWidth() - 1; i >= 0; i--) {
       const char c_0 = c0[i];
       const char c_1 = c1[i];
 
-      if (c_0 == '0')
-        {
+      if (c_0 == '0') {
           if (c_1 == '0')
             continue;
-        }
-      else if (c_0 == '1')
-        {
+      } else if (c_0 == '1') {
           if (c_1 == '1')
             continue;
-        }
-      else if (c_0 == '*' && c_1 == '*')
-        {
+      } else if (c_0 == '*' && c_1 == '*') {
           return true;
-        }
+      }
       return false;
-    }
+   }
 }
 
 
@@ -137,8 +131,6 @@ fast_exit(FixedBits& c0, FixedBits& c1)
 
 Result bvSignedLessThanBothWays(FixedBits& c0, FixedBits& c1, FixedBits& output)
 {
-	Result r = NO_CHANGE;
-
 	assert(c0.getWidth() == c1.getWidth());
 
 	if (!output.isFixed(0) && fast_exit(c0,c1))
@@ -165,7 +157,6 @@ Result bvSignedLessThanBothWays(FixedBits& c0, FixedBits& c1, FixedBits& output)
 		{
 			output.setFixed(0, true);
 			output.setValue(0, true);
-			r = CHANGED;
 		}
 	}
 
@@ -183,7 +174,6 @@ Result bvSignedLessThanBothWays(FixedBits& c0, FixedBits& c1, FixedBits& output)
 		{
 			output.setFixed(0, true);
 			output.setValue(0, false);
-			r = CHANGED;
 		}
 	}
 
@@ -213,7 +203,6 @@ Result bvSignedLessThanBothWays(FixedBits& c0, FixedBits& c1, FixedBits& output)
 				c0.setFixed(msb, true);
 				c0.setValue(msb, true);
 				setSignedMinMax(c0, c0_min, c0_max);
-				r = CHANGED;
 			}
 			else
 			{
@@ -229,7 +218,6 @@ Result bvSignedLessThanBothWays(FixedBits& c0, FixedBits& c1, FixedBits& output)
 				c1.setFixed(msb, true);
 				c1.setValue(msb, false);
 				setSignedMinMax(c1, c1_min, c1_max);
-				r = CHANGED;
 			}
 			else
 			{
@@ -241,7 +229,7 @@ Result bvSignedLessThanBothWays(FixedBits& c0, FixedBits& c1, FixedBits& output)
 
 		if (output.isFixed(0) && output.getValue(0))
 		{
-			for (int i = c0.getWidth() - 1 - 1; i >= 0; i--)
+			for (int i = (int)c0.getWidth() - 1 - 1; i >= 0; i--)
 			{
 				if (!c0.isFixed(i))
 				{
@@ -252,7 +240,6 @@ Result bvSignedLessThanBothWays(FixedBits& c0, FixedBits& c1, FixedBits& output)
 						c0.setFixed(i, true);
 						c0.setValue(i, false);
 						setSignedMinMax(c0, c0_min, c0_max);
-						r = CHANGED;
 					}
 					else
 					{
@@ -262,7 +249,7 @@ Result bvSignedLessThanBothWays(FixedBits& c0, FixedBits& c1, FixedBits& output)
 				}
 			}
 
-			for (int i = c1.getWidth() - 1 - 1; i >= 0; i--)
+			for (int i = (int)c1.getWidth() - 1 - 1; i >= 0; i--)
 			{
 				if (!c1.isFixed(i))
 				{
@@ -272,7 +259,6 @@ Result bvSignedLessThanBothWays(FixedBits& c0, FixedBits& c1, FixedBits& output)
 						c1.setFixed(i, true);
 						c1.setValue(i, true);
 						setSignedMinMax(c1, c1_min, c1_max);
-						r = CHANGED;
 					}
 					else
 					{
@@ -290,8 +276,6 @@ Result bvSignedLessThanBothWays(FixedBits& c0, FixedBits& c1, FixedBits& output)
 
 Result bvSignedLessThanEqualsBothWays(FixedBits& c0, FixedBits &c1, FixedBits& output)
 {
-	Result r = NO_CHANGE;
-
 	assert(c0.getWidth() == c1.getWidth());
 
         if (!output.isFixed(0) && fast_exit(c0,c1))
@@ -317,7 +301,6 @@ Result bvSignedLessThanEqualsBothWays(FixedBits& c0, FixedBits &c1, FixedBits& o
 		{
 			output.setFixed(0, true);
 			output.setValue(0, true);
-			r = CHANGED;
 		}
 	}
 
@@ -333,7 +316,6 @@ Result bvSignedLessThanEqualsBothWays(FixedBits& c0, FixedBits &c1, FixedBits& o
 		{
 			output.setFixed(0, true);
 			output.setValue(0, false);
-			r = CHANGED;
 		}
 	}
 
@@ -363,7 +345,6 @@ Result bvSignedLessThanEqualsBothWays(FixedBits& c0, FixedBits &c1, FixedBits& o
 				c0.setFixed(msb, true);
 				c0.setValue(msb, true);
 				setSignedMinMax(c0, c0_min, c0_max);
-				r = CHANGED;
 			}
 			else
 			{
@@ -379,7 +360,6 @@ Result bvSignedLessThanEqualsBothWays(FixedBits& c0, FixedBits &c1, FixedBits& o
 				c1.setFixed(msb, true);
 				c1.setValue(msb, false);
 				setSignedMinMax(c1, c1_min, c1_max);
-				r = CHANGED;
 			}
 			else
 			{
@@ -391,7 +371,7 @@ Result bvSignedLessThanEqualsBothWays(FixedBits& c0, FixedBits &c1, FixedBits& o
 
 		// Starting from the high order. Turn on each bit in turn. If it being turned on pushes it past the max of the other side
 		// then we know it must be turned off.
-		for (int i = c0.getWidth() - 1 - 1; i >= 0; i--)
+		for (int i = (int)c0.getWidth() - 1 - 1; i >= 0; i--)
 		{
 			if (!c0.isFixed(i)) // bit is variable.
 			{
@@ -413,7 +393,7 @@ Result bvSignedLessThanEqualsBothWays(FixedBits& c0, FixedBits &c1, FixedBits& o
 
 		// Starting from the high order. Turn on each bit in turn. If it being turned on pushes it past the max of the other side
 		// then we know it must be turned off.
-		for (int i = c0.getWidth() - 1 - 1; i >= 0; i--)
+		for (int i = (int)c0.getWidth() - 1 - 1; i >= 0; i--)
 		{
 			if (!c1.isFixed(i)) // bit is variable.
 			{
@@ -446,8 +426,6 @@ Result bvSignedLessThanEqualsBothWays(FixedBits& c0, FixedBits &c1, FixedBits& o
 // UNSIGNED!!
 Result bvLessThanBothWays(FixedBits& c0, FixedBits &c1, FixedBits& output)
 {
-	Result r = NO_CHANGE;
-
 	assert(c0.getWidth() == c1.getWidth());
 
         if (!output.isFixed(0) && fast_exit(c0,c1))
@@ -504,13 +482,11 @@ Result bvLessThanBothWays(FixedBits& c0, FixedBits &c1, FixedBits& output)
 		return bvGreaterThanEqualsBothWays(c0, c1, t);
 	}
 
-	bool changed = false;
-
 	if (output.isFixed(0) && output.getValue(0))
 	{
 		// Starting from the high order. Turn on each bit in turn. If it being turned on pushes it past the max of the other side
 		// then we know it must be turned off.
-		for (int i = c0.getWidth() - 1; i >= 0; i--)
+		for (int i = (int)c0.getWidth() - 1; i >= 0; i--)
 		{
 			if (!c0.isFixed(i)) // bit is variable.
 			{
@@ -521,7 +497,6 @@ Result bvLessThanBothWays(FixedBits& c0, FixedBits &c1, FixedBits& output)
 					c0.setFixed(i, true);
 					c0.setValue(i, false);
 					setUnsignedMinMax(c0, c0_min, c0_max);
-					changed = true;
 				}
 				else
 				{
@@ -531,7 +506,7 @@ Result bvLessThanBothWays(FixedBits& c0, FixedBits &c1, FixedBits& output)
 			}
 		}
 
-		for (int i = c1.getWidth() - 1; i >= 0; i--)
+		for (int i = (int)c1.getWidth() - 1; i >= 0; i--)
 		{
 			if (!c1.isFixed(i)) // bit is variable.
 			{
@@ -541,7 +516,6 @@ Result bvLessThanBothWays(FixedBits& c0, FixedBits &c1, FixedBits& output)
 					c1.setFixed(i, true);
 					c1.setValue(i, true);
 					setUnsignedMinMax(c1, c1_min, c1_max);
-					changed = true;
 				}
 				else
 				{
@@ -558,8 +532,6 @@ Result bvLessThanBothWays(FixedBits& c0, FixedBits &c1, FixedBits& output)
 
 Result bvLessThanEqualsBothWays(FixedBits& c0, FixedBits &c1, FixedBits& output)
 {
-	Result r = NO_CHANGE;
-
 	assert(c0.getWidth() == c1.getWidth());
 
         if (!output.isFixed(0) && fast_exit(c0,c1))
@@ -621,7 +593,7 @@ Result bvLessThanEqualsBothWays(FixedBits& c0, FixedBits &c1, FixedBits& output)
 	{
 		// Starting from the high order. Turn on each bit in turn. If it being turned on pushes it past the max of the other side
 		// then we know it must be turned off.
-		for (int i = c0.getWidth() - 1; i >= 0; i--)
+		for (int i = (int)c0.getWidth() - 1; i >= 0; i--)
 		{
 			if (!c0.isFixed(i)) // bit is variable.
 			{

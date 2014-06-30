@@ -1493,7 +1493,6 @@ bool Subsumer::maybeEliminate(const Var x)
                 #endif
                 Clause* cl = solver.addClauseInt(dummy, group_num);
                 if (cl != NULL) {
-                    linkInClause(*cl);
                     subsume0(*cl, cl->getAbst());
                 }
                 if (!solver.ok) return true;
@@ -1886,4 +1885,4 @@ vector<char> Subsumer::merge()
     return true;
 }*/
 
-}; //NAMESPACE MINISAT
+} //NAMESPACE MINISAT

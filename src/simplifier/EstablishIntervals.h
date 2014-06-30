@@ -10,6 +10,14 @@
 #include "../AST/NodeFactory/SimplifyingNodeFactory.h"
 #include <boost/utility.hpp>
 
+#ifdef _MSC_VER
+#include <compdep.h>
+#endif
+
+#include <iostream>
+using std::cerr;
+using std::endl;
+
 namespace BEEV
 {
   using std::make_pair;
@@ -120,7 +128,7 @@ namespace BEEV
       ASTVec new_children;
       new_children.reserve(result.GetChildren().size());
 
-      for (int i =0; i < result.Degree();i++)
+      for (size_t i =0; i < result.Degree();i++)
         new_children.push_back(replace(result[i],fromTo,cache));
 
       if (new_children == result.GetChildren())
@@ -499,7 +507,7 @@ namespace BEEV
               result = freshUnsignedInterval(n.GetValueWidth());
 
               // Copy in the minimum and maximum.
-        	  for (int i=0; i < n[0].GetValueWidth();i++)
+        	  for (unsigned i=0; i < n[0].GetValueWidth();i++)
         	  {
         		  if (CONSTANTBV::BitVector_bit_test(children[0]->maxV,i))
         			  CONSTANTBV::BitVector_Bit_On(result->maxV,i);
@@ -512,7 +520,7 @@ namespace BEEV
         			  CONSTANTBV::BitVector_Bit_Off(result->minV,i);
         	  }
 
-        	  for (int i=n[0].GetValueWidth(); i < n.GetValueWidth();i++)
+        	  for (unsigned i=n[0].GetValueWidth(); i < n.GetValueWidth();i++)
         		  CONSTANTBV::BitVector_Bit_Off(result->maxV,i);
     	  }
       } else if (knownC1)
@@ -520,13 +528,13 @@ namespace BEEV
           // Ignores what's already there for now..
 
           IntervalType * circ_result = freshUnsignedInterval(n.GetValueWidth());
-          for (int i=0; i < n[0].GetValueWidth()-1;i++)
+          for (int i=0; i < (int)n[0].GetValueWidth()-1;i++)
           {
               CONSTANTBV::BitVector_Bit_On(circ_result->maxV,i);
               CONSTANTBV::BitVector_Bit_Off(circ_result->minV,i);
           }
 
-          for (int i=n[0].GetValueWidth()-1; i < n.GetValueWidth();i++)
+          for (int i = (int)n[0].GetValueWidth()-1; i < (int)n.GetValueWidth();i++)
           {
               CONSTANTBV::BitVector_Bit_Off(circ_result->maxV,i);
               CONSTANTBV::BitVector_Bit_On(circ_result->minV,i);
@@ -601,7 +609,7 @@ namespace BEEV
           CONSTANTBV::BitVector_increment(result->maxV);
 
           bool bad= false;
-          for (int i =0; i < children.size(); i++)
+          for (size_t i =0; i < children.size(); i++)
             {
               if (children[i] == NULL)
                 {
@@ -617,7 +625,7 @@ namespace BEEV
               if (CONSTANTBV::Set_Max(max) >= width)
                 bad = true;
 
-              for (int j = width; j < 2 * width; j++)
+              for (unsigned j = width; j < 2 * width; j++)
                 {
                   if (CONSTANTBV::BitVector_bit_test(min, j))
                     bad = true;
@@ -690,7 +698,7 @@ namespace BEEV
 
           bool carry = false;
 
-          for (int i =0; i < children.size(); i++)
+          for (size_t i =0; i < children.size(); i++)
             {
               if (children[i] == NULL)
                 {
@@ -719,7 +727,7 @@ namespace BEEV
           if (knownC1)
           {
         	  // Copy in the minimum and maximum.
-        	  for (int i=0; i < n[1].GetValueWidth();i++)
+        	  for (unsigned i=0; i < n[1].GetValueWidth();i++)
         	  {
         		  if (CONSTANTBV::BitVector_bit_test(children[1]->maxV,i))
         			  CONSTANTBV::BitVector_Bit_On(result->maxV,i);
@@ -736,7 +744,7 @@ namespace BEEV
           if (knownC0)
           {
         	  // Copy in the minimum and maximum.
-        	  for (int i=n[1].GetValueWidth(); i < n.GetValueWidth();i++)
+        	  for (unsigned i=n[1].GetValueWidth(); i < n.GetValueWidth();i++)
         	  {
         		  if (CONSTANTBV::BitVector_bit_test(children[0]->maxV,i- n[1].GetValueWidth()))
         			  CONSTANTBV::BitVector_Bit_On(result->maxV,i);
@@ -757,7 +765,7 @@ namespace BEEV
 
     	  bool nonNull = true;
     	  // If all the children are known, output 'em.
-    	  for (int i=0; i < n.Degree();i++)
+    	  for (size_t i=0; i < n.Degree();i++)
     	  {
     		  if (children[i]== NULL)
     			  nonNull=false;
@@ -766,7 +774,7 @@ namespace BEEV
     	  if (false && nonNull && n.GetKind() != SYMBOL && n.GetKind() != AND)
     	  {
     	      cerr << n;
-    	      for (int i=0; i < n.Degree();i++)
+    	      for (size_t i=0; i < n.Degree();i++)
     	        children[i]->print();
     	  }
       }
@@ -799,10 +807,10 @@ namespace BEEV
 
     ~EstablishIntervals()
     {
-      for (int i =0; i < toDeleteLater.size();i++)
+      for (size_t i =0; i < toDeleteLater.size();i++)
         delete toDeleteLater[i];
 
-      for (int i =0; i < likeAutoPtr.size();i++)
+      for (size_t i =0; i < likeAutoPtr.size();i++)
         CONSTANTBV::BitVector_Destroy(likeAutoPtr[i]);
 
       likeAutoPtr.clear();
@@ -810,5 +818,5 @@ namespace BEEV
     }
   };
 }
-;
+
 #endif /* ESTABLISHINTERVALS_H_ */

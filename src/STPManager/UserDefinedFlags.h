@@ -146,6 +146,7 @@ namespace BEEV
         MINISAT_SOLVER =0,
         SIMPLIFYING_MINISAT_SOLVER,
         CRYPTOMINISAT_SOLVER,
+        CRYPTOMINISAT4_SOLVER,
         MINISAT_PROPAGATORS
       };
 
@@ -308,6 +309,6 @@ namespace BEEV
     } //End of constructor for UserDefinedFlags
 
   }; //End of struct UserDefinedFlags
-};//end of namespace
+} //end of namespace
 
 #endif

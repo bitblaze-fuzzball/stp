@@ -8,7 +8,7 @@ From: Solver.C -- (C) Niklas Een, Niklas Sorensson, 2004
 #include "Vec.h"
 #include <limits>
 #ifdef _MSC_VER
-#include <msvc/stdint.h>
+#include "msvc/stdint.h"
 #else
 #include <stdint.h>
 #endif //_MSC_VER
@@ -131,6 +131,6 @@ class XSet {
         }
 };
 
-}; //NAMESPACE MINISAT
+} //NAMESPACE MINISAT
 
 #endif //XSET_H

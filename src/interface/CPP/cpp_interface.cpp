@@ -190,10 +190,17 @@ namespace BEEV
     return SubstitutionMap::replace(f.function,fromTo,cache, nf);
   }
 
-  bool Cpp_interface::isFunction(const string name)
+  bool Cpp_interface::isBitVectorFunction(const string name)
   {
-    return (functions.find(name) != functions.end());
+    return ((functions.find(name) != functions.end()) && functions.find(name)->second.function.GetType() == BITVECTOR_TYPE);
   }
+
+ bool Cpp_interface::isBooleanFunction(const string name)
+ {
+   return ((functions.find(name) != functions.end()) && functions.find(name)->second.function.GetType() == BOOLEAN_TYPE );
+ }
+
+
 
   ASTNode Cpp_interface::LookupOrCreateSymbol(string name)
   {
@@ -369,7 +376,7 @@ namespace BEEV
           // It's satisfiable, so everything beneath it is satisfiable too.
           if (last_result == SOLVER_SATISFIABLE)
             {
-              for (int i = 0; i < cache.size(); i++)
+              for (size_t i = 0; i < cache.size(); i++)
                 {
                   assert(cache[i].result != SOLVER_UNSATISFIABLE);
                   cache[i].result = SOLVER_SATISFIABLE;
@@ -418,4 +425,4 @@ namespace BEEV
     symbols.clear();
   }
 }
-;
+

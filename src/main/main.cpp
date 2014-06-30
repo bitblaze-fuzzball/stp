@@ -166,6 +166,9 @@ void create_options()
     po::options_description solver_options("SAT Solver options");
     solver_options.add_options()
     ("cryptominisat", "use cryptominisat2 as the solver")
+    #ifdef USE_CRYPTOMINISAT4
+    ("cryptominisat4", "use cryptominisat4 as the solver. Only use CryptoMiniSat 4.2 or above.")
+    #endif
     ("simplifying-minisat", "use simplifying-minisat 2.2 as the solver")
     ("minisat", "use minisat 2.2 as the solver")
     ;
@@ -231,8 +234,10 @@ void create_options()
     misc_options.add_options()
     ("exit-after-CNF", po::bool_switch(&(bm->UserFlags.exit_after_CNF))
         , "exit after the CNF has been generated")
+    #ifndef _MSC_VER
     ("timeout,g", po::value<size_t>(&hardTimeout)
         , "timeout (seconds until STP gives up)")
+    #endif
     ("seed,i", po::value<size_t>(&random_seed)
         , "set random seed for STP's satisfiable output. Random_seed is an integer >= 0")
     ("random-seed"
@@ -312,7 +317,19 @@ int parse_options(int argc, char** argv)
         bm->UserFlags.solver_to_use = UserDefinedFlags::CRYPTOMINISAT_SOLVER;
     }
 
-    if (vm.count("cryptominisat") + vm.count("minisat") + vm.count("simplifying-minisat") > 1) {
+    #ifdef USE_CRYPTOMINISAT4
+    if (vm.count("cryptominisat4")) {
+        bm->UserFlags.solver_to_use = UserDefinedFlags::CRYPTOMINISAT4_SOLVER;
+    }
+    #endif
+
+    if (vm.count("cryptominisat")
+        #ifdef USE_CRYPTOMINISAT4
+        + vm.count("cryptominisat4")
+        #endif
+        + vm.count("minisat")
+        + vm.count("simplifying-minisat") > 1
+    ) {
         cout << "ERROR: You may only give one solver to use: minisat, simplifying-minisat, or cryptominisat" << endl;
         exit(-1);
     }
@@ -349,9 +366,11 @@ int parse_options(int argc, char** argv)
         bm->defaultNodeFactory = bm->hashingNodeFactory;
     }
 
+    #ifndef _MSC_VER
     if (vm.count("timeout")) {
         BEEV::setHardTimeout(hardTimeout);
     }
+    #endif
 
     if (vm.count("seed")) {
         bm->UserFlags.random_seed_flag = true;
@@ -510,11 +529,13 @@ int main(int argc, char** argv)
     // Register the error handler
     vc_error_hdlr = errorHandler;
 
+#ifndef _MSC_VER
     // Grab some memory from the OS upfront to reduce system time when
     // individual hash tables are being allocated
     if (sbrk(INITIAL_MEMORY_PREALLOCATION_SIZE) == ((void*) - 1)) {
         FatalError("Initial allocation of memory failed.");
     }
+#endif
 
 
     bm = new STPMgr();

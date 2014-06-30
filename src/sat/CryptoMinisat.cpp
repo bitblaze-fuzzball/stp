@@ -50,12 +50,12 @@ namespace BEEV
   }
 
   uint8_t
-  CryptoMinisat::modelValue(Var x) const
+  CryptoMinisat::modelValue(uint32_t x) const
   {
     return s->model[x].getchar();
   }
 
-  Minisat::Var
+  uint32_t
   CryptoMinisat::newVar()
   {
     return s->newVar();
@@ -66,7 +66,7 @@ namespace BEEV
     s->verbosity = v;
   }
 
-  int CryptoMinisat::nVars()
+  unsigned long CryptoMinisat::nVars()
   {return s->nVars();}
 
   void CryptoMinisat::printStats()
