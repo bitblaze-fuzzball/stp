@@ -692,11 +692,6 @@ namespace BEEV
   void
   AbsRefine_CounterExample::PrintCounterExample(bool t, std::ostream& os)
   {
-    //input is valid, no counterexample to print
-    if (bm->ValidFlag)
-      {
-        return;
-      }
 
     //if this option is true then print the way dawson wants using a
     //different printer. do not use this printer.
