@@ -7,9 +7,8 @@ set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/modules)
 # -----------------------------------------------------------------------------
 # Make RelWithDebInfo the default build type if otherwise not set
 # -----------------------------------------------------------------------------
-
+set(build_types Debug Release RelWithDebInfo MinSizeRel)
 if(NOT CMAKE_BUILD_TYPE)
-      set(build_types Debug Release RelWithDebInfo MinSizeRel)
 
       message(STATUS "You can choose the type of build, options are:${build_types}")
       set(CMAKE_BUILD_TYPE RelWithDebInfo CACHE String
@@ -21,6 +20,34 @@ if(NOT CMAKE_BUILD_TYPE)
       set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS ${build_types})
 endif()
 message(STATUS "Doing a ${CMAKE_BUILD_TYPE} build")
+
+# -----------------------------------------------------------------------------
+# Option to enable/disable assertions
+# -----------------------------------------------------------------------------
+
+# Filter out definition of NDEBUG from the default build configuration flags.
+# We will add this ourselves if we want to disable assertions
+foreach (build_config ${build_types})
+    string(TOUPPER ${build_config} upper_case_build_config)
+    foreach (language CXX C)
+        set(VAR_TO_MODIFY "CMAKE_${language}_FLAGS_${upper_case_build_config}")
+        string(REGEX REPLACE "(^| )[/-]D *NDEBUG($| )"
+                             " "
+                             replacement
+                             "${${VAR_TO_MODIFY}}"
+              )
+        #message("Original (${VAR_TO_MODIFY}) is ${${VAR_TO_MODIFY}} replacement is ${replacement}")
+        set(${VAR_TO_MODIFY} "${replacement}" CACHE STRING "Default flags for ${build_config} configuration" FORCE)
+    endforeach()
+endforeach()
+
+option(ENABLE_ASSERTIONS "Build with assertions enabled" ON)
+if (ENABLE_ASSERTIONS)
+    # NDEBUG was already removed.
+else()
+    # Note this definition doesn't appear in the cache variables.
+    add_definitions(-DNDEBUG)
+endif()
 
 # -----------------------------------------------------------------------------
 # Enable LLVM sanitizations.
@@ -51,7 +78,35 @@ endif()
 # Let the user decide if they want to build shared or static client library.
 # STP will link against this client library
 # -----------------------------------------------------------------------------
-option(BUILD_SHARED_LIBS "Build client library as a shared library" OFF)
+option(BUILD_SHARED_LIBS "Build client library as a shared library" ON)
+
+if (WIN32)
+  # building of shared lib on windows is not done at source level
+  set(BUILD_SHARED_LIBS OFF)
+  message(WARNING "Disabling building of shared library on Windows")
+else()
+    option(BUILD_STATIC_BIN "Build a static binary (and no shared libs)" OFF)
+
+    if (BUILD_STATIC_BIN)
+        set(BUILD_SHARED_LIBS OFF)
+        # Flags for the linker will be set later
+    endif()
+endif()
+
+if (BUILD_SHARED_LIBS)
+  option(ALSO_BUILD_STATIC_LIB "IF building shared library, also build the static library" ON)
+
+  set(STP_SHARED_LIBRARY libstp) # Used for exporting target
+
+  if (ALSO_BUILD_STATIC_LIB AND NOT WIN32)
+    list(APPEND TARGETS_TO_EXPORT libstp_static)
+    set(STP_STATIC_LIBRARY libstp_static) # Used for exporting target
+  endif()
+
+else()
+  set(STP_STATIC_LIBRARY libstp) # Used for exporting target
+  unset(ALSO_BUILD_STATIC_LIB CACHE) # Hide this option for ccmake and cmake-gui users
+endif()
 
 # -----------------------------------------------------------------------------
 # Set the appropriate build flags
@@ -71,13 +126,16 @@ if(BUILD_SHARED_LIBS)
     add_cxx_flag_if_supported("-fPIC")
 endif()
 
-check_cxx_compiler_flag("-std=gnu++11" HAVE_FLAG_STD_GNUPP11)
+check_cxx_compiler_flag("-std=gnu++11" HAVE_FLAG_STD_GNUCPP11)
+check_cxx_compiler_flag("-std=gnu++0x" HAVE_FLAG_STD_GNUCPP0X)
 check_cxx_compiler_flag("-std=c++11" HAVE_FLAG_STD_CPP11)
 check_cxx_compiler_flag("-std=c++0x" HAVE_FLAG_STD_CPP0X)
 check_cxx_compiler_flag("-stdlib=libc++" HAVE_FLAG_STDLIB_LIBCPP)
 
 if(HAVE_FLAG_STD_GNUCPP11)
   set(CMAKE_CXX_FLAGS "-std=gnu++11 ${CMAKE_CXX_FLAGS}")
+elseif(HAVE_FLAG_STD_GNUCPP0X)
+  set(CMAKE_CXX_FLAGS "-std=gnu++0x ${CMAKE_CXX_FLAGS}")
 elseif(HAVE_FLAG_STD_CPP11)
   set(CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}")
 elseif(HAVE_FLAG_STD_CPP0X)
@@ -89,7 +147,8 @@ if(APPLE AND HAVE_FLAG_STDLIB_LIBCPP)
 endif()
 
 add_cxx_flag_if_supported("-Wall")
-add_cxx_flag_if_supported("-Wextra")
+#add_cxx_flag_if_supported("-Wextra")
+add_cxx_flag_if_supported("-pedantic")
 add_cxx_flag_if_supported("-Wunused")
 add_cxx_flag_if_supported("-Wsign-compare")
 add_cxx_flag_if_supported("-Wtype-limits")
@@ -108,9 +167,6 @@ endif()
 
 
 if(WIN32)
-  # build shared lib on windows is not prepared at source level
-  set(BUILD_SHARED_LIBS OFF)
-  message(WARNING "Disabling building of shared library on Windows")
   set(FLEX_PATH_HINT "e:/cygwin/bin" CACHE STRING "Flex path hints, can be null if on your path")
   set(BISON_PATH_HINT "e:/cygwin/bin" CACHE STRING "Bison path hints, can be null if on your path")
   set(PERL_PATH_HINT "C:/Perl/bin" CACHE STRING "Perl path hints, can be null if on your pat")
@@ -120,11 +176,15 @@ if(WIN32)
   if(MSVC)
       set(OPTIMIZITION_FLAGS  "/GL /Ox /Oi /Ot /Oy")
       set(STP_DEFS_COMM ${STP_DEFS_COMM} -D_CRT_SECURE_NO_WARNINGS)
-      set(STP_INCL_COMM ../winports ../winports/msc99hdr ${STP_INCL_COMM})
+      set(STP_INCL_COMM windows/winports windows/winports/msc99hdr ${STP_INCL_COMM})
+      include_directories(${STP_INCL_COMM})
 
       # stack size of MSVC must be specified
       string(REGEX REPLACE "/STACK:[0-9]+" "" CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS})
       set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /STACK:256000000")
+
+      # inline is not a keyword in visual studios old C version, allow its redefinition
+      add_definitions("-D_ALLOW_KEYWORD_MACROS")
   else()
       # mingw
       set(STP_DEFS_COMM ${STP_DEFS_COMM} -DEXT_HASH_MAP)
@@ -150,10 +210,23 @@ check_cxx_hashmap()
 # -----------------------------------------------------------------------------
 
 configure_file(
-  "${CMAKE_CURRENT_SOURCE_DIR}/src/config.h.in"
-  "${CMAKE_CURRENT_BINARY_DIR}/include/config.h"
+  "${CMAKE_CURRENT_SOURCE_DIR}/include/stp/config.h.in"
+  "${CMAKE_CURRENT_BINARY_DIR}/include/stp/config.h"
 )
+
+
+# -----------------------------------------------------------------------------
+# Set up includes
+# -----------------------------------------------------------------------------
+include_directories("${CMAKE_CURRENT_SOURCE_DIR}/include")
 include_directories("${CMAKE_CURRENT_BINARY_DIR}/include")
+
+# FIXME: External library includes
+include_directories(# For extlib-abc and extlib-constbv
+                    ${CMAKE_SOURCE_DIR}/lib
+                    # For minisat and cryptominisat2
+                    ${CMAKE_SOURCE_DIR}/lib/Sat
+                   )
 
 # -----------------------------------------------------------------------------
 # Uncomment these for static compilation under Linux (messes up Valgrind)
@@ -177,6 +250,23 @@ endif()
 find_package( Boost 1.46 REQUIRED COMPONENTS program_options system)
 include_directories(${Boost_INCLUDE_DIRS})
 
+# -----------------------------------------------------------------------------
+# Find CryptoMiniSat4
+# -----------------------------------------------------------------------------
+set(cryptominisat4_DIR "" CACHE PATH "Path to directory containing cryptominisat4Config.cmake")
+find_package(cryptominisat4 CONFIG)
+if (cryptominisat4_FOUND AND HAVE_FLAG_STD_CPP11)
+    message(STATUS "Found CryptoMiniSat4 and C++11, allowing --cryptominisat4 option")
+    add_definitions(-DUSE_CRYPTOMINISAT4)
+    include_directories(${CRYPTOMINISAT4_INCLUDE_DIRS})
+    set(USE_CRYPTOMINISAT4 ON)
+else()
+    message(WARNING "CryptoMiniSat4 or C++11 support not found, not allowing --cryptominisat4 option")
+endif()
+
+# -----------------------------------------------------------------------------
+# Find Parser and Lexer generators
+# -----------------------------------------------------------------------------
 find_package(BISON REQUIRED)
 find_package(FLEX REQUIRED)
 
@@ -187,43 +277,38 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 
 # -----------------------------------------------------------------------------
-# This macro is used by library targets to add a public header to themselves.
-# If this library is a component of libstp then libstp will also have the
-# public header added too (handled else where see libstp/CMakeLists.txt)
-#
-# Usage : stp_add_public_header(<library_target> <header file>)
-# -----------------------------------------------------------------------------
-macro(stp_add_public_header LIBTARGET HEADER)
-    set(HEADER_PATH "${CMAKE_CURRENT_SOURCE_DIR}/${HEADER}")
-    if(EXISTS "${HEADER_PATH}")
-        # Get existing PUBLIC_HEADER
-        get_target_property(EXISTING_PUBLIC_HEADERS ${LIBTARGET} PUBLIC_HEADER)
-        if(EXISTING_PUBLIC_HEADERS)
-            list(APPEND EXISTING_PUBLIC_HEADERS "${HEADER_PATH}")
-        else()
-            # Do not append to empty list
-            set(EXISTING_PUBLIC_HEADERS "${HEADER_PATH}")
-        endif()
-        set_target_properties(${LIBTARGET}
-                              PROPERTIES
-                              PUBLIC_HEADER "${EXISTING_PUBLIC_HEADERS}"
-                             )
-    else()
-        message(FATAL_ERROR "Cannot add public header, file ${HEADER_PATH} does not exist.")
-    endif()
-endmacro()
-
-
-# -----------------------------------------------------------------------------
 # Provide an export name to be used by targets that wish to export themselves.
 # -----------------------------------------------------------------------------
 set(STP_EXPORT_NAME "STPTargets")
 
 # -----------------------------------------------------------------------------
+# Testing and Python interface options
+# -----------------------------------------------------------------------------
+
+option(ENABLE_TESTING "Enable testing" OFF)
+option(ENABLE_PYTHON_INTERFACE "Enable Python interface" ON)
+
+if (ENABLE_PYTHON_INTERFACE AND NOT BUILD_SHARED_LIBS)
+    message(FATAL_ERROR "Python interface requires shared library")
+endif()
+
+# Both the testing infrastructure and python interface depend on python
+if(ENABLE_TESTING OR ENABLE_PYTHON_INTERFACE)
+    find_package(PythonInterp REQUIRED)
+    mark_as_advanced(CLEAR PYTHON_EXECUTABLE) # Make visible in cmake-gui/ccmake
+
+    if(NOT PYTHONINTERP_FOUND)
+        message(FATAL_ERROR "Python cannot be found. Please install it or disable testing and/or python interface")
+    endif()
+endif()
+
+# -----------------------------------------------------------------------------
 # Compile all subdirs
 # -----------------------------------------------------------------------------
 
-add_subdirectory(src)
+add_subdirectory(lib)
+add_subdirectory(tools)
+add_subdirectory(bindings)
 
 # -----------------------------------------------------------------------------
 # Add uninstall target for makefiles
@@ -237,10 +322,8 @@ add_custom_target(uninstall
     COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
 
 # -----------------------------------------------------------------------------
-# Testing
+# Add tests if required
 # -----------------------------------------------------------------------------
-
-option(ENABLE_TESTING "Enable testing" OFF)
 
 if(ENABLE_TESTING)
     message(STATUS "Testing is enabled")
@@ -264,7 +347,7 @@ set(STP_TARGETS_FILENAME "STPTargets.cmake")
 set(STP_CONFIG_FILENAME "STPConfig.cmake")
 
 # Export targets
-export(TARGETS libstp stp FILE "${PROJECT_BINARY_DIR}/${STP_TARGETS_FILENAME}")
+export(TARGETS stp ${STP_SHARED_LIBRARY} ${STP_STATIC_LIBRARY} FILE "${PROJECT_BINARY_DIR}/${STP_TARGETS_FILENAME}")
 
 # Create STPConfig file
 set(EXPORT_TYPE "Build-tree")

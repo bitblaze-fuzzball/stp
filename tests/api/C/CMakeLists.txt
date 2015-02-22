@@ -1,21 +1,12 @@
 AddGTestSuite(C-api-tests)
-
-# -----------------------------------------------------------------------------
-# Find the public headers associated with libstp
-# -----------------------------------------------------------------------------
-get_target_property(libstp_headers libstp PUBLIC_HEADER)
-foreach(header ${libstp_headers})
-    get_filename_component(headerDir ${header} PATH) # FIXME: CMake >=2.8.12 has DIRECTORY instead of PATH which is easier to understand
-    include_directories(${headerDir})
-endforeach()
-
 # -----------------------------------------------------------------------------
 # C API tests (these should be .cpp or .cxx files because GTest needs C++)
 # -----------------------------------------------------------------------------
 AddSTPGTest(array-cvcl-02.cpp)
+AddSTPGTest(array-ite.cpp)
 AddSTPGTest(b4-c2.cpp)
 AddSTPGTest(b4-c.cpp)
-AddSTPGTest(getbvunsignedlonglong-check.cpp)
+AddSTPGTest(getbv.cpp)
 AddSTPGTest(if-check.cpp)
 AddSTPGTest(interface-check.cpp)
 AddSTPGTest(leaks.cpp)
