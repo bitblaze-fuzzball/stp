@@ -27,6 +27,8 @@ while (<>) {
 	    push @call_args, $addr2var{$a};
 	} elsif ($a =~ /^0x/) {
 	    push @call_args, $a;
+	} elsif ($a =~ /^\d+/) {
+	    push @call_args, $a;
 	} else {
 	    push @call_args, "XXX";
 	}
@@ -44,12 +46,13 @@ while (<>) {
     } elsif ($func eq "vc_setFlags") {
 	next;
     } elsif ($func eq "vc_setInterfaceFlags") {
-	next;
+	$call_args[1] = "(ifaceflag_t)$call_args[1]";
     } elsif ($func eq "vc_query_with_timeout") {
 	next;
     } elsif ($func eq "vc_varExpr") {
 	my $name = $args[1];
-	$name =~ s/\_\d+$//;
+	# FuzzBALL's variables all have superfluous numeric suffixes:
+	# $name =~ s/\_\d+$//;
 	$call_args[1] = qq'"$name"';
 	$var = "var_" . $name;
 	$ret_type = "Expr";
@@ -118,6 +121,16 @@ while (<>) {
 	$ret_type = "Expr";
 	$addr2form{$out} = "(" . $addr2form{$args[1]} . " | "
 	  . $addr2form{$args[2]} . ")";
+    } elsif ($func eq "vc_bvPlusExpr") {
+	$var = "e_bvplus";
+	$ret_type = "Expr";
+	$addr2form{$out} = "BVPLUS($args[1], " . $addr2form{$args[2]} . " + "
+	  . $addr2form{$args[3]} . ")";
+    } elsif ($func eq "vc_sbvModExpr") {
+	$var = "e_sbvmod";
+	$ret_type = "Expr";
+	$addr2form{$out} = "(" . $addr2form{$args[2]} . " % "
+	  . $addr2form{$args[3]} . ")";
     } elsif ($func eq "vc_bvNotExpr") {
 	$var = "e_bvnot";
 	$ret_type = "Expr";
